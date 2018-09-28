@@ -1,15 +1,34 @@
 package com.example.fred_liu.pulsr;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
-import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
+import com.example.fred_liu.pulsr.Home.HomeFragment;
+import com.example.fred_liu.pulsr.Me.LoginFragment;
+import com.example.fred_liu.pulsr.Me.MeFragment;
+import com.example.fred_liu.pulsr.Notification.NotificationFragment;
+import com.example.fred_liu.pulsr.Search.SearchFragment;
 
-    private TextView mTextMessage;
+import java.io.FileInputStream;
+
+public class MainActivity extends AppCompatActivity implements
+        HomeFragment.OnFragmentInteractionListener,
+        SearchFragment.OnFragmentInteractionListener,
+        NotificationFragment.OnFragmentInteractionListener,
+        MeFragment.OnFragmentInteractionListener,
+        LoginFragment.OnFragmentInteractionListener{
+
+
+    FragmentTransaction fragmentTransaction;
+
+    // save files
+    private String mFilePath;
+    private FileInputStream is = null;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -18,13 +37,24 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.navigation_home:
-                    mTextMessage.setText(R.string.title_home);
+                    fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.replace(R.id.content, new HomeFragment());
+                    fragmentTransaction.commit();
                     return true;
-                case R.id.navigation_dashboard:
-                    mTextMessage.setText(R.string.title_dashboard);
+                case R.id.navigation_search:
+                    fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.replace(R.id.content, new SearchFragment());
+                    fragmentTransaction.commit();
                     return true;
                 case R.id.navigation_notifications:
-                    mTextMessage.setText(R.string.title_notifications);
+                    fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.replace(R.id.content, new NotificationFragment());
+                    fragmentTransaction.commit();
+                    return true;
+                case R.id.navigation_me:
+                    fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.replace(R.id.content, new MeFragment());
+                    fragmentTransaction.commit();
                     return true;
             }
             return false;
@@ -36,9 +66,16 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mTextMessage = (TextView) findViewById(R.id.message);
+        fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.add(R.id.content, new HomeFragment());
+        fragmentTransaction.commit();
+
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }
 
+    @Override
+    public void onFragmentInteraction(Uri uri) {
+
+    }
 }
