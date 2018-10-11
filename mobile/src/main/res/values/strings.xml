@@ -24,8 +24,156 @@
         <item>Contact us</item>
     </string-array>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string-array name="Image_parkingSpot">
+        <item>@drawable/maroon_5_payphone</item>
+        <item>@drawable/maroon_5_payphone</item>
+        <item>@drawable/maroon_5_payphone</item>
+        <item>@drawable/maroon_5_payphone</item>
+        <item>@drawable/maroon_5_payphone</item>
+        <item>@drawable/maroon_5_payphone</item>
+        <item>@drawable/maroon_5_payphone</item>
+        <item>@drawable/maroon_5_payphone</item>
+        <item>@drawable/maroon_5_payphone</item>
+        <item>@drawable/maroon_5_payphone</item>
+        <item>@drawable/maroon_5_payphone</item>
+        <item>@drawable/maroon_5_payphone</item>
+        <item>@drawable/maroon_5_payphone</item>
+        <item>@drawable/maroon_5_payphone</item>
+        <item>@drawable/maroon_5_payphone</item>
+        <item>@drawable/maroon_5_payphone</item>
+    </string-array>
 
+    <string-array name="DateList">
+        <item>2018/10/11</item>
+        <item>2018/10/11</item>
+        <item>2018/10/11</item>
+        <item>2018/10/11</item>
+        <item>2018/10/11</item>
+        <item>2018/10/11</item>
+        <item>2018/10/11</item>
+        <item>2018/10/11</item>
+        <item>2018/10/11</item>
+        <item>2018/10/11</item>
+        <item>2018/10/11</item>
+        <item>2018/10/10</item>
+        <item>2018/10/10</item>
+        <item>2018/10/10</item>
+        <item>2018/10/10</item>
+        <item>2018/10/10</item>
+    </string-array>
+
+    <string-array name="TimeList">
+        <item>01:00 pm</item>
+        <item>02:00 pm</item>
+        <item>03:00 pm</item>
+        <item>04:00 pm</item>
+        <item>05:00 pm</item>
+        <item>06:00 pm</item>
+        <item>07:00 pm</item>
+        <item>08:00 pm</item>
+        <item>09:00 pm</item>
+        <item>10:00 pm</item>
+        <item>11:00 pm</item>
+        <item>00:00 am</item>
+        <item>01:00 am</item>
+        <item>02:00 pm</item>
+        <item>03:00 pm</item>
+        <item>04:00 pm</item>
+    </string-array>
+
+    <string-array name="LocationList">
+        <item>Blacksburg</item>
+        <item>Blacksburg</item>
+        <item>Blacksburg</item>
+        <item>Blacksburg</item>
+        <item>Blacksburg</item>
+        <item>Blacksburg</item>
+        <item>Blacksburg</item>
+        <item>Blacksburg</item>
+        <item>Blacksburg</item>
+        <item>Blacksburg</item>
+        <item>Blacksburg</item>
+        <item>Blacksburg</item>
+        <item>Blacksburg</item>
+        <item>Blacksburg</item>
+        <item>Blacksburg</item>
+        <item>Blacksburg</item>
+    </string-array>
+
+    <string-array name="HeartRateList">
+        <item>61</item>
+        <item>61</item>
+        <item>61</item>
+        <item>61</item>
+        <item>61</item>
+        <item>61</item>
+        <item>61</item>
+        <item>61</item>
+        <item>61</item>
+        <item>61</item>
+        <item>61</item>
+        <item>61</item>
+        <item>61</item>
+        <item>61</item>
+        <item>61</item>
+        <item>61</item>
+    </string-array>
+
+    <string-array name="StepsList">
+        <item>800</item>
+        <item>800</item>
+        <item>800</item>
+        <item>800</item>
+        <item>800</item>
+        <item>800</item>
+        <item>800</item>
+        <item>800</item>
+        <item>800</item>
+        <item>800</item>
+        <item>800</item>
+        <item>800</item>
+        <item>800</item>
+        <item>800</item>
+        <item>800</item>
+        <item>800</item>
+    </string-array>
+
+    <string-array name="CalsList">
+        <item>1000</item>
+        <item>1000</item>
+        <item>1000</item>
+        <item>1000</item>
+        <item>1000</item>
+        <item>1000</item>
+        <item>1000</item>
+        <item>1000</item>
+        <item>1000</item>
+        <item>1000</item>
+        <item>1000</item>
+        <item>1000</item>
+        <item>1000</item>
+        <item>1000</item>
+        <item>1000</item>
+        <item>1000</item>
+    </string-array>
+
+    <string-array name="PlayingList">
+        <item>Maroon 5 - Payphone</item>
+        <item>Maroon 5 - Payphone</item>
+        <item>Maroon 5 - Payphone</item>
+        <item>Maroon 5 - Cold ft. Future</item>
+        <item>Maroon 5 - Cold ft. Future</item>
+        <item>Maroon 5 - Cold ft. Future</item>
+        <item>Maroon 5 - Cold ft. Future</item>
+        <item>Maroon 5 - Cold ft. Future</item>
+        <item>Maroon 5 - Misery</item>
+        <item>Maroon 5 - Misery</item>
+        <item>Maroon 5 - Misery</item>
+        <item>Maroon 5 - Misery</item>
+        <item>Maroon 5 - Never Gonna Leave This Bed</item>
+        <item>Maroon 5 - Never Gonna Leave This Bed</item>
+        <item>Maroon 5 - Never Gonna Leave This Bed</item>
+        <item>Maroon 5 - Never Gonna Leave This Bed</item>
+    </string-array>
 
 </resources>
