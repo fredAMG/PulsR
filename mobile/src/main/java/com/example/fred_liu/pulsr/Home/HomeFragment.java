@@ -6,6 +6,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import java.util.Timer;
+import java.util.TimerTask;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -56,6 +58,11 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
     private static final String AUTH_PENDING = "auth_state_pending";
     protected boolean authInProgress = false;
     final Calendar currentTime = Calendar.getInstance();
+    private long daily_steps;
+    TextView textDate, currentHeartRate, currentSteps, currentCals;
+    GraphView heartRateGraph, stepsRateGraph, calsRateGraph;
+    DatePicker datePicker;
+    Switch switch1;
 
 
     private static String mYear;
@@ -63,6 +70,9 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
     private static String mDay;
     private static String mTime;
     private static String mWeek;
+
+    private Timer mTimer;
+
 
     public HomeFragment() {
         // Required empty public constructor
@@ -74,9 +84,17 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        final TextView textDate = view.findViewById(R.id.textDate);
-        final DatePicker datePicker = view.findViewById(R.id.datePicker);
-        final Switch switch1 = view.findViewById(R.id.switch1);
+        textDate = view.findViewById(R.id.textDate);
+        datePicker = view.findViewById(R.id.datePicker);
+        switch1 = view.findViewById(R.id.switch1);
+
+        currentHeartRate =  view.findViewById(R.id.currentHeartRate);
+        currentSteps =  view.findViewById(R.id.currentSteps);
+        currentCals =  view.findViewById(R.id.currentCals);
+
+        heartRateGraph = view.findViewById(R.id.heartRateGraph);
+        stepsRateGraph = view.findViewById(R.id.stepsGraph);
+        calsRateGraph = view.findViewById(R.id.calsGraph);
 
 
         mYear = String.valueOf(currentTime.get(Calendar.YEAR)); // 获取当前年份
@@ -130,15 +148,62 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
                 .addConnectionCallbacks(this).addOnConnectionFailedListener(this)
                 .build();
 
+
+        mTimer = new Timer();
+
+        int delay = 5000; // delay for 5 sec.
+        int period = 1000; // repeat 1/2 minute.
+
+        mTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                VerifyDataTask task1 = new VerifyDataTask();
+                task1.execute();
+                updateUI();
+            }
+        },delay,period);
+
         return view;
+    }
+
+    private class VerifyDataTask extends AsyncTask<Void, Void, Void> {
+        protected Void doInBackground(Void... params) {
+
+            long total = 0;
+
+            PendingResult<DailyTotalResult> result = Fitness.HistoryApi.readDailyTotal(mClient, DataType.TYPE_STEP_COUNT_DELTA);
+            DailyTotalResult totalResult = result.await(30, TimeUnit.SECONDS);
+            if (totalResult.getStatus().isSuccess()) {
+                DataSet totalSet = totalResult.getTotal();
+                total = totalSet.isEmpty()
+                        ? 0
+                        : totalSet.getDataPoints().get(0).getValue(Field.FIELD_STEPS).asInt();
+            } else {
+                Log.w(TAG, "There was a problem getting the step count.");
+            }
+
+            Log.i(TAG, "Total steps: " + total);
+
+            daily_steps = total;
+
+            return null;
+        }
+    }
+
+    private void updateUI(){
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                currentSteps.setText(String.valueOf(daily_steps));
+
+            }
+        });
     }
 
     @Override
     public void onConnected(Bundle bundle) {
         DataSourcesRequest dataSourcesRequest = new DataSourcesRequest.Builder()
-                .setDataTypes( DataType.TYPE_STEP_COUNT_CADENCE )
-                .setDataTypes( DataType.TYPE_HEART_RATE_BPM )
-
+                .setDataTypes( DataType.TYPE_STEP_COUNT_CUMULATIVE )
                 .setDataSourceTypes( DataSource.TYPE_RAW )
                 .build();
 
@@ -147,18 +212,12 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
             @Override
             public void onResult(DataSourcesResult dataSourcesResult) {
                 for( DataSource dataSource : dataSourcesResult.getDataSources() ) {
-//                    if( DataType.TYPE_HEART_RATE_BPM.equals( dataSource.getDataType() ) ) {
-//                        registerFitnessDataListener(dataSource, DataType.TYPE_HEART_RATE_BPM);
-//                    }
                     if( DataType.TYPE_STEP_COUNT_CUMULATIVE.equals( dataSource.getDataType() ) ) {
                         registerFitnessDataListener(dataSource, DataType.TYPE_STEP_COUNT_CUMULATIVE);
                     }
                 }
             }
         };
-
-//        Fitness.SensorsApi.findDataSources(mClient, heartRateDataSourceRequest)
-//                .setResultCallback(dataSourcesResultCallback);
 
         Fitness.SensorsApi.findDataSources(mClient, dataSourcesRequest)
                 .setResultCallback(dataSourcesResultCallback);
@@ -173,9 +232,9 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
                 @Override
                 public void run() {
 
-                    GraphView heartRateGraph = getView().findViewById(R.id.heartRateGraph);
-                    GraphView stepsRateGraph = getView().findViewById(R.id.stepsGraph);
-                    GraphView calsRateGraph = getView().findViewById(R.id.calsGraph);
+                    heartRateGraph = getView().findViewById(R.id.heartRateGraph);
+                    stepsRateGraph = getView().findViewById(R.id.stepsGraph);
+                    calsRateGraph = getView().findViewById(R.id.calsGraph);
 
 
                     LineGraphSeries<DataPoint> heartRateSeries = new LineGraphSeries<>(new DataPoint[] {
@@ -210,15 +269,15 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
                     stepsRateGraph.addSeries(stepsSeries);
                     calsRateGraph.addSeries(calsSeries);
 
-                    TextView currentHeartRate =  getView().findViewById(R.id.currentHeartRate);
+                    currentHeartRate =  getView().findViewById(R.id.currentHeartRate);
                     currentHeartRate.setText("Field: " + field.getName() + " Value: " + 62);
 
-                    TextView currentStepsRate =  getView().findViewById(R.id.currentStepsRate);
-                    currentStepsRate.setText("Field: " + field.getName() + " Value: " + value);
-                    Toast.makeText(getActivity(), "Field: " + field.getName() + " Value: " + value, Toast.LENGTH_SHORT).show();
+//                    currentSteps =  getView().findViewById(R.id.currentSteps);
+//                    currentSteps.setText("Field: " + field.getName() + " Value: " + value);
+//                    Toast.makeText(getActivity(), "Field: " + field.getName() + " Value: " + value, Toast.LENGTH_SHORT).show();
 
-                    TextView currentCalsRate =  getView().findViewById(R.id.currentCalsRate);
-                    currentCalsRate.setText("Field: " + field.getName() + " Value: " + 850);
+                    currentCals =  getView().findViewById(R.id.currentCals);
+                    currentCals.setText("Field: " + field.getName() + " Value: " + 850);
 
                 }
             });

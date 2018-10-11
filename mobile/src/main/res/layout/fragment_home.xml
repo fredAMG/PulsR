@@ -86,7 +86,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="22dp"
                 android:layout_gravity="center"
-                android:id="@+id/currentStepsRate"
+                android:id="@+id/currentSteps"
                 android:text="5000"/>
 
             <com.jjoe64.graphview.GraphView
@@ -107,7 +107,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="22dp"
                 android:layout_gravity="center"
-                android:id="@+id/currentCalsRate"
+                android:id="@+id/currentCals"
                 android:text="800"/>
 
             <com.jjoe64.graphview.GraphView
