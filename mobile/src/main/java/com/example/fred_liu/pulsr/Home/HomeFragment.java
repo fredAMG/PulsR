@@ -4,8 +4,11 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import android.support.v4.app.Fragment;
@@ -68,7 +71,7 @@ public class HomeFragment extends Fragment {
     private float daily_cals;
 
 
-    TextView textDate, currentHeartRate, currentSteps, currentCals;
+    TextView textDate, currentHeartRate, currentSteps, currentCals, cTime;
     GraphView heartRateGraph, stepsRateGraph, calsRateGraph;
     DatePicker datePicker;
     Switch switch1, switch2;
@@ -78,8 +81,12 @@ public class HomeFragment extends Fragment {
     private static String mYear;
     private static String mMonth;
     private static String mDay;
-    private static String mTime;
     private static String mWeek;
+
+    private LineGraphSeries<DataPoint> heartRateSeries;
+    private LineGraphSeries<DataPoint> stepsSeries;
+    private LineGraphSeries<DataPoint> calsSeries;
+
 
     private Timer mTimer;
 
@@ -100,6 +107,8 @@ public class HomeFragment extends Fragment {
         switch2 = view.findViewById(R.id.switch2);
         map_frame = view.findViewById(R.id.map_frame);
 
+//        cTime = view.findViewById(R.id.cTime);
+
 
         currentHeartRate =  view.findViewById(R.id.currentHeartRate);
         currentSteps =  view.findViewById(R.id.currentSteps);
@@ -113,7 +122,6 @@ public class HomeFragment extends Fragment {
         mYear = String.valueOf(currentTime.get(Calendar.YEAR)); // 获取当前年份
         mMonth = String.valueOf(currentTime.get(Calendar.MONTH) + 1);// 获取当前月份
         mDay = String.valueOf(currentTime.get(Calendar.DAY_OF_MONTH));// 获取当前月份的日期号码
-        mTime = String.valueOf(currentTime.get(Calendar.AM_PM));
         mWeek = String.valueOf(currentTime.get(Calendar.DAY_OF_WEEK));
 
         textDate.setText(StringData());
@@ -201,37 +209,8 @@ public class HomeFragment extends Fragment {
             }
         },delay,period);
 
-        LineGraphSeries<DataPoint> heartRateSeries = new LineGraphSeries<>(new DataPoint[] {
 
-                new DataPoint(0, 61),
-                new DataPoint(1, 61),
-                new DataPoint(2, 62),
-                new DataPoint(3, 61),
-                new DataPoint(4, 61),
-                new DataPoint(5, 61)
-        });
 
-        LineGraphSeries<DataPoint> stepsSeries = new LineGraphSeries<>(new DataPoint[] {
-                new DataPoint(0, 5),
-                new DataPoint(1, 10),
-                new DataPoint(2, 15),
-                new DataPoint(3, 20),
-                new DataPoint(4, 30),
-                new DataPoint(5, 33)
-        });
-
-        LineGraphSeries<DataPoint> calsSeries = new LineGraphSeries<>(new DataPoint[] {
-                new DataPoint(0, 100),
-                new DataPoint(1, 130),
-                new DataPoint(2, 170),
-                new DataPoint(3, 200),
-                new DataPoint(4, 230),
-                new DataPoint(5, 253)
-        });
-
-        heartRateGraph.addSeries(heartRateSeries);
-        stepsRateGraph.addSeries(stepsSeries);
-        calsRateGraph.addSeries(calsSeries);
 
         return view;
     }
@@ -242,12 +221,12 @@ public class HomeFragment extends Fragment {
             float total = 0;
 
             PendingResult<DailyTotalResult> result = Fitness.HistoryApi.readDailyTotal(mClient, DataType.TYPE_HEART_RATE_BPM);
-            DailyTotalResult totalResult = result.await(30, TimeUnit.MINUTES);
+            DailyTotalResult totalResult = result.await(30, TimeUnit.SECONDS);
             if (totalResult.getStatus().isSuccess()) {
                 DataSet totalSet = totalResult.getTotal();
                 total = totalSet.isEmpty()
                         ? 0
-                        : totalSet.getDataPoints().get(0).getValue(Field.FIELD_MAX).asFloat();
+                        : totalSet.getDataPoints().get(0).getValue(Field.FIELD_AVERAGE).asFloat();
             } else {
                 Log.w(TAG, "There was a problem getting the heart rate.");
             }
@@ -308,7 +287,6 @@ public class HomeFragment extends Fragment {
         }
     }
 
-
     private void updateUI(){
 
         // here you check the value of getActivity() and break up if needed
@@ -320,12 +298,41 @@ public class HomeFragment extends Fragment {
                     currentSteps.setText(String.valueOf(daily_steps));
                     currentCals.setText(String.valueOf(daily_cals));
 
+                    Calendar c = Calendar.getInstance();
+//                    cTime.setText(c.get(Calendar.HOUR)+":"+c.get(Calendar.MINUTE)+":"+c.get(Calendar.SECOND));
+
+                    heartRateSeries = new LineGraphSeries<>(new DataPoint[] {
+
+                            new DataPoint(0, 0)
+                    });
+
+                    stepsSeries = new LineGraphSeries<>(new DataPoint[] {
+                            new DataPoint(0,0)
+                    });
+
+                    calsSeries = new LineGraphSeries<>(new DataPoint[] {
+                            new DataPoint(0, 0)
+                    });
+
+                    heartRateSeries.appendData(new DataPoint(c.get(Calendar.SECOND), heart_rate),true, 30);
+                    heartRateGraph.addSeries(heartRateSeries);
+
+                    stepsSeries.appendData(new DataPoint(c.get(Calendar.SECOND), daily_steps),true, 30);
+                    stepsRateGraph.addSeries(stepsSeries);
+
+                    calsSeries.appendData(new DataPoint(c.get(Calendar.SECOND), daily_cals),true, 30);
+                    calsRateGraph.addSeries(calsSeries);
                 }
             });
         }
     }
+    double start = -5;
+    double end = 5;
+    Random mRand = new Random();
 
-
+    private double getRandom() {
+        return start + (mRand.nextDouble() * (end - start));
+    }
 
     @Override
     public void onStart() {
