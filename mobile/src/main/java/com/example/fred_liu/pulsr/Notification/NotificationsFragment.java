@@ -35,7 +35,7 @@ public class NotificationsFragment extends Fragment {
 
 
         notificationListView = (ListView) view.findViewById(R.id.notificationListView);
-        swipeRefreshLayout = view.findViewById(R.id.swiperefresh);
+        swipeRefreshLayout = view.findViewById(R.id.swipeRefresh);
         SwipeRefreshLayout.OnRefreshListener onRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {

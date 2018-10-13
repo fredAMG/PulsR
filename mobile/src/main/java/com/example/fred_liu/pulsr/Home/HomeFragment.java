@@ -9,16 +9,21 @@ import android.support.annotation.Nullable;
 import java.util.Timer;
 import java.util.TimerTask;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
+import android.widget.FrameLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.fred_liu.pulsr.Notification.SpotAdapter;
 import com.example.fred_liu.pulsr.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
@@ -39,6 +44,7 @@ import com.google.android.gms.fitness.request.OnDataPointListener;
 import com.google.android.gms.fitness.request.SensorRequest;
 import com.google.android.gms.fitness.result.DailyTotalResult;
 import com.google.android.gms.fitness.result.DataSourcesResult;
+import com.google.android.gms.maps.MapView;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
@@ -51,19 +57,23 @@ import java.util.concurrent.TimeUnit;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 
 
-public class HomeFragment extends Fragment implements OnDataPointListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
-    private static final int REQUEST_OAUTH = 1;
+public class HomeFragment extends Fragment {
     private GoogleApiClient mClient;
     private static final String TAG = "HomeFragment";
     private static final String AUTH_PENDING = "auth_state_pending";
     protected boolean authInProgress = false;
     final Calendar currentTime = Calendar.getInstance();
+    private float heart_rate;
     private long daily_steps;
+    private float daily_cals;
+
+
     TextView textDate, currentHeartRate, currentSteps, currentCals;
     GraphView heartRateGraph, stepsRateGraph, calsRateGraph;
     DatePicker datePicker;
-    Switch switch1;
-
+    Switch switch1, switch2;
+    FrameLayout map_frame;
+    FragmentTransaction fragmentTransaction;
 
     private static String mYear;
     private static String mMonth;
@@ -87,6 +97,9 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
         textDate = view.findViewById(R.id.textDate);
         datePicker = view.findViewById(R.id.datePicker);
         switch1 = view.findViewById(R.id.switch1);
+        switch2 = view.findViewById(R.id.switch2);
+        map_frame = view.findViewById(R.id.map_frame);
+
 
         currentHeartRate =  view.findViewById(R.id.currentHeartRate);
         currentSteps =  view.findViewById(R.id.currentSteps);
@@ -105,17 +118,25 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
 
         textDate.setText(StringData());
 
-
         switch1.setChecked(false);
         datePicker.setVisibility(View.GONE);
 
-        final CompoundButton.OnCheckedChangeListener onCheckedChangeListener = new CompoundButton.OnCheckedChangeListener() {
+        switch2.setChecked(false);
+        map_frame.setVisibility(View.GONE);
+
+
+        fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.map_frame, new MapFragment());
+        fragmentTransaction.commit();
+
+        final CompoundButton.OnCheckedChangeListener onCheckedChangeListener1 = new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if(switch1.isChecked()){
                     datePicker.setVisibility(View.VISIBLE);
 
-                }else{
+                }
+                else if(!switch1.isChecked()) {
                     datePicker.setVisibility(View.GONE);
                     mYear = String.valueOf(datePicker.getYear());
                     mMonth = String.valueOf(datePicker.getMonth()+1);
@@ -130,7 +151,21 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
                 }
             }
         };
-        switch1.setOnCheckedChangeListener(onCheckedChangeListener);
+
+        final CompoundButton.OnCheckedChangeListener onCheckedChangeListener2 = new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(switch2.isChecked()) {
+                    map_frame.setVisibility(View.VISIBLE);
+                }
+                else if(!switch2.isChecked()) {
+                    map_frame.setVisibility(View.GONE);
+                }
+            }
+        };
+        switch1.setOnCheckedChangeListener(onCheckedChangeListener1);
+        switch2.setOnCheckedChangeListener(onCheckedChangeListener2);
+
 
         if (savedInstanceState != null) {
             authInProgress = savedInstanceState.getBoolean(AUTH_PENDING);
@@ -145,7 +180,6 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
                 .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ))
                 .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
                 .addScope(new Scope(Scopes.FITNESS_LOCATION_READ))
-                .addConnectionCallbacks(this).addOnConnectionFailedListener(this)
                 .build();
 
 
@@ -157,16 +191,76 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
         mTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
             public void run() {
-                VerifyDataTask task1 = new VerifyDataTask();
-                task1.execute();
+                StepsDataTask stepsDataTask = new StepsDataTask();
+                stepsDataTask.execute();
+                HeartRateDataTask heartRateDataTask = new HeartRateDataTask();
+                heartRateDataTask.execute();
+                CalsDataTask calsDataTask = new CalsDataTask();
+                calsDataTask.execute();
                 updateUI();
             }
         },delay,period);
 
+        LineGraphSeries<DataPoint> heartRateSeries = new LineGraphSeries<>(new DataPoint[] {
+
+                new DataPoint(0, 61),
+                new DataPoint(1, 61),
+                new DataPoint(2, 62),
+                new DataPoint(3, 61),
+                new DataPoint(4, 61),
+                new DataPoint(5, 61)
+        });
+
+        LineGraphSeries<DataPoint> stepsSeries = new LineGraphSeries<>(new DataPoint[] {
+                new DataPoint(0, 5),
+                new DataPoint(1, 10),
+                new DataPoint(2, 15),
+                new DataPoint(3, 20),
+                new DataPoint(4, 30),
+                new DataPoint(5, 33)
+        });
+
+        LineGraphSeries<DataPoint> calsSeries = new LineGraphSeries<>(new DataPoint[] {
+                new DataPoint(0, 100),
+                new DataPoint(1, 130),
+                new DataPoint(2, 170),
+                new DataPoint(3, 200),
+                new DataPoint(4, 230),
+                new DataPoint(5, 253)
+        });
+
+        heartRateGraph.addSeries(heartRateSeries);
+        stepsRateGraph.addSeries(stepsSeries);
+        calsRateGraph.addSeries(calsSeries);
+
         return view;
     }
 
-    private class VerifyDataTask extends AsyncTask<Void, Void, Void> {
+    private class HeartRateDataTask extends AsyncTask<Void, Void, Void> {
+        protected Void doInBackground(Void... params) {
+
+            float total = 0;
+
+            PendingResult<DailyTotalResult> result = Fitness.HistoryApi.readDailyTotal(mClient, DataType.TYPE_HEART_RATE_BPM);
+            DailyTotalResult totalResult = result.await(30, TimeUnit.MINUTES);
+            if (totalResult.getStatus().isSuccess()) {
+                DataSet totalSet = totalResult.getTotal();
+                total = totalSet.isEmpty()
+                        ? 0
+                        : totalSet.getDataPoints().get(0).getValue(Field.FIELD_MAX).asFloat();
+            } else {
+                Log.w(TAG, "There was a problem getting the heart rate.");
+            }
+
+            Log.i(TAG, "Heart Rate: " + total);
+
+            heart_rate = total;
+
+            return null;
+        }
+    }
+
+    private class StepsDataTask extends AsyncTask<Void, Void, Void> {
         protected Void doInBackground(Void... params) {
 
             long total = 0;
@@ -190,94 +284,41 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
         }
     }
 
+    private class CalsDataTask extends AsyncTask<Void, Void, Void> {
+        protected Void doInBackground(Void... params) {
+
+            float total = 0;
+
+            PendingResult<DailyTotalResult> result = Fitness.HistoryApi.readDailyTotal(mClient, DataType.TYPE_CALORIES_EXPENDED);
+            DailyTotalResult totalResult = result.await(30, TimeUnit.SECONDS);
+            if (totalResult.getStatus().isSuccess()) {
+                DataSet totalSet = totalResult.getTotal();
+                total = totalSet.isEmpty()
+                        ? 0
+                        : totalSet.getDataPoints().get(0).getValue(Field.FIELD_CALORIES).asFloat();
+            } else {
+                Log.w(TAG, "There was a problem getting the cals consumption.");
+            }
+
+            Log.i(TAG, "cals consumption: " + total);
+
+            daily_cals = total;
+
+            return null;
+        }
+    }
+
+
     private void updateUI(){
-        getActivity().runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                currentSteps.setText(String.valueOf(daily_steps));
 
-            }
-        });
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-        DataSourcesRequest dataSourcesRequest = new DataSourcesRequest.Builder()
-                .setDataTypes( DataType.TYPE_STEP_COUNT_CUMULATIVE )
-                .setDataSourceTypes( DataSource.TYPE_RAW )
-                .build();
-
-
-        ResultCallback<DataSourcesResult> dataSourcesResultCallback = new ResultCallback<DataSourcesResult>() {
-            @Override
-            public void onResult(DataSourcesResult dataSourcesResult) {
-                for( DataSource dataSource : dataSourcesResult.getDataSources() ) {
-                    if( DataType.TYPE_STEP_COUNT_CUMULATIVE.equals( dataSource.getDataType() ) ) {
-                        registerFitnessDataListener(dataSource, DataType.TYPE_STEP_COUNT_CUMULATIVE);
-                    }
-                }
-            }
-        };
-
-        Fitness.SensorsApi.findDataSources(mClient, dataSourcesRequest)
-                .setResultCallback(dataSourcesResultCallback);
-    }
-
-
-    @Override
-    public void onDataPoint(com.google.android.gms.fitness.data.DataPoint dataPoint) {
-        for( final Field field : dataPoint.getDataType().getFields() ) {
-            final Value value = dataPoint.getValue( field );
+        // here you check the value of getActivity() and break up if needed
+        if(getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-
-                    heartRateGraph = getView().findViewById(R.id.heartRateGraph);
-                    stepsRateGraph = getView().findViewById(R.id.stepsGraph);
-                    calsRateGraph = getView().findViewById(R.id.calsGraph);
-
-
-                    LineGraphSeries<DataPoint> heartRateSeries = new LineGraphSeries<>(new DataPoint[] {
-
-                            new DataPoint(0, 61),
-                            new DataPoint(1, 61),
-                            new DataPoint(2, 62),
-                            new DataPoint(3, 61),
-                            new DataPoint(4, 61),
-                            new DataPoint(5, 61)
-                    });
-
-                    LineGraphSeries<DataPoint> stepsSeries = new LineGraphSeries<>(new DataPoint[] {
-                            new DataPoint(0, 5),
-                            new DataPoint(1, 10),
-                            new DataPoint(2, 15),
-                            new DataPoint(3, 20),
-                            new DataPoint(4, 30),
-                            new DataPoint(5, 33)
-                    });
-
-                    LineGraphSeries<DataPoint> calsSeries = new LineGraphSeries<>(new DataPoint[] {
-                            new DataPoint(0, 100),
-                            new DataPoint(1, 130),
-                            new DataPoint(2, 170),
-                            new DataPoint(3, 200),
-                            new DataPoint(4, 230),
-                            new DataPoint(5, 253)
-                    });
-
-                    heartRateGraph.addSeries(heartRateSeries);
-                    stepsRateGraph.addSeries(stepsSeries);
-                    calsRateGraph.addSeries(calsSeries);
-
-                    currentHeartRate =  getView().findViewById(R.id.currentHeartRate);
-                    currentHeartRate.setText("Field: " + field.getName() + " Value: " + 62);
-
-//                    currentSteps =  getView().findViewById(R.id.currentSteps);
-//                    currentSteps.setText("Field: " + field.getName() + " Value: " + value);
-//                    Toast.makeText(getActivity(), "Field: " + field.getName() + " Value: " + value, Toast.LENGTH_SHORT).show();
-
-                    currentCals =  getView().findViewById(R.id.currentCals);
-                    currentCals.setText("Field: " + field.getName() + " Value: " + 850);
+                    currentHeartRate.setText(String.valueOf(heart_rate));
+                    currentSteps.setText(String.valueOf(daily_steps));
+                    currentCals.setText(String.valueOf(daily_cals));
 
                 }
             });
@@ -287,90 +328,17 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
 
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if( requestCode == REQUEST_OAUTH ) {
-            authInProgress = false;
-            if( resultCode == getActivity().RESULT_OK ) {
-                if( !mClient.isConnecting() && !mClient.isConnected() ) {
-                    mClient.connect();
-                }
-            } else if( resultCode == getActivity().RESULT_CANCELED ) {
-                Log.e( "GoogleFit", "RESULT_CANCELED" );
-            }
-        } else {
-            Log.e("GoogleFit", "requestCode NOT request_oauth");
-        }
-    }
-
-    private void registerFitnessDataListener(DataSource dataSource, DataType dataType) {
-
-        SensorRequest request = new SensorRequest.Builder()
-                .setDataSource( dataSource )
-                .setDataType( dataType )
-                .setSamplingRate( 3, TimeUnit.SECONDS )
-                .build();
-
-        Fitness.SensorsApi.add(mClient, request, this)
-                .setResultCallback(new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(Status status) {
-                        if (status.isSuccess()) {
-                            Log.e("GoogleFit", "SensorApi successfully added");
-                        } else {
-                            Log.e("GoogleFit", "adding status: " + status.getStatusMessage());
-                        }
-                    }
-                });
-    }
-
-    @Override
     public void onStart() {
         super.onStart();
         mClient.connect();
     }
-
     @Override
     public void onStop() {
         super.onStop();
-
-        Fitness.SensorsApi.remove( mClient, this )
-                .setResultCallback(new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(Status status) {
-                        if (status.isSuccess()) {
-                            mClient.disconnect();
-                        }
-                    }
-                });
+        mClient.disconnect();
+        mTimer.cancel();
     }
 
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        // TODO move to subclass so that we can disable UI components, etc., in the event that the service is inaccessible
-
-        // If your connection to the client gets lost at some point,
-        // you'll be able to determine the reason and react to it here.
-        if (i == ConnectionCallbacks.CAUSE_NETWORK_LOST) {
-            Log.i(TAG, "GoogleApiClient connection lost. Reason: Network lost.");
-        } else if (i == ConnectionCallbacks.CAUSE_SERVICE_DISCONNECTED) {
-            Log.i(TAG, "GoogleApiClient connection lost. Reason: Service disconnected");
-        }
-    }
-
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        if( !authInProgress ) {
-            try {
-                authInProgress = true;
-                connectionResult.startResolutionForResult( this.getActivity(), REQUEST_OAUTH );
-            } catch(IntentSender.SendIntentException e ) {
-                Log.e( "GoogleFit", "sendingIntentException " + e.getMessage() );
-            }
-        } else {
-            Log.e( "GoogleFit", "authInProgress" );
-        }
-    }
 
 
     public interface OnFragmentInteractionListener {
