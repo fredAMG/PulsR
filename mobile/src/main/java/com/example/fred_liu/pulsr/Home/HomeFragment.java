@@ -61,7 +61,7 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.jjoe64.graphview.series.PointsGraphSeries;
 
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements OnDataPointListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
     private GoogleApiClient mClient;
     private static final String TAG = "HomeFragment";
     private static final String AUTH_PENDING = "auth_state_pending";
@@ -189,6 +189,7 @@ public class HomeFragment extends Fragment {
                 .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ))
                 .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
                 .addScope(new Scope(Scopes.FITNESS_LOCATION_READ))
+                .addConnectionCallbacks(this).addOnConnectionFailedListener(this)
                 .build();
 
 
@@ -214,6 +215,60 @@ public class HomeFragment extends Fragment {
 
 
         return view;
+    }
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        DataSourcesRequest dataSourcesRequest = new DataSourcesRequest.Builder()
+                .setDataTypes( DataType.TYPE_STEP_COUNT_CADENCE )
+                .setDataTypes( DataType.TYPE_HEART_RATE_BPM )
+                .setDataSourceTypes( DataSource.TYPE_RAW )
+                .build();
+        ResultCallback<DataSourcesResult> dataSourcesResultCallback = new ResultCallback<DataSourcesResult>() {
+            @Override
+            public void onResult(DataSourcesResult dataSourcesResult) {
+
+            }
+        };
+
+        Fitness.SensorsApi.findDataSources(mClient, dataSourcesRequest)
+                .setResultCallback(dataSourcesResultCallback);
+
+    }
+
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        // TODO move to subclass so that we can disable UI components, etc., in the event that the service is inaccessible
+        // If your connection to the client gets lost at some point,
+        // you'll be able to determine the reason and react to it here.
+        if (i == ConnectionCallbacks.CAUSE_NETWORK_LOST) {
+            Log.i(TAG, "GoogleApiClient connection lost. Reason: Network lost.");
+        } else if (i == ConnectionCallbacks.CAUSE_SERVICE_DISCONNECTED) {
+            Log.i(TAG, "GoogleApiClient connection lost. Reason: Service disconnected");
+        }
+    }
+
+    private static final int REQUEST_OAUTH = 1;
+
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        if( !authInProgress ) {
+            try {
+                authInProgress = true;
+                connectionResult.startResolutionForResult( this.getActivity(), REQUEST_OAUTH );
+            } catch(IntentSender.SendIntentException e ) {
+                Log.e( "GoogleFit", "sendingIntentException " + e.getMessage() );
+            }
+        } else {
+            Log.e( "GoogleFit", "authInProgress" );
+        }
+    }
+
+    @Override
+    public void onDataPoint(com.google.android.gms.fitness.data.DataPoint dataPoint) {
+
     }
 
     private class HeartRateDataTask extends AsyncTask<Void, Void, Void> {
@@ -337,8 +392,8 @@ public class HomeFragment extends Fragment {
                     stepsSeries.appendData(new DataPoint(refreshTime++, daily_steps),true, 100);
                     // set manual X bounds
                     stepsRateGraph.getViewport().setYAxisBoundsManual(true);
-                    stepsRateGraph.getViewport().setMinY(0);
-                    stepsRateGraph.getViewport().setMaxY(1200);
+                    stepsRateGraph.getViewport().setMinY(daily_steps - 50);
+                    stepsRateGraph.getViewport().setMaxY(daily_steps + 50);
 
                     stepsRateGraph.getViewport().setXAxisBoundsManual(true);
                     stepsRateGraph.getViewport().setMinX(0);
@@ -354,8 +409,8 @@ public class HomeFragment extends Fragment {
                     calsSeries.appendData(new DataPoint(refreshTime++, daily_cals),true, 100);
                     // set manual X bounds
                     calsRateGraph.getViewport().setYAxisBoundsManual(true);
-                    calsRateGraph.getViewport().setMinY(0);
-                    calsRateGraph.getViewport().setMaxY(5000);
+                    calsRateGraph.getViewport().setMinY(daily_cals - 500);
+                    calsRateGraph.getViewport().setMaxY(daily_cals + 500);
 
                     calsRateGraph.getViewport().setXAxisBoundsManual(true);
                     calsRateGraph.getViewport().setMinX(0);
