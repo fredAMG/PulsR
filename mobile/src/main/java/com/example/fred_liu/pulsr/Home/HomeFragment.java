@@ -58,6 +58,7 @@ import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.jjoe64.graphview.series.PointsGraphSeries;
 
 
 public class HomeFragment extends Fragment {
@@ -83,9 +84,9 @@ public class HomeFragment extends Fragment {
     private static String mDay;
     private static String mWeek;
 
-    private LineGraphSeries<DataPoint> heartRateSeries;
-    private LineGraphSeries<DataPoint> stepsSeries;
-    private LineGraphSeries<DataPoint> calsSeries;
+    private PointsGraphSeries<DataPoint> heartRateSeries;
+    private PointsGraphSeries<DataPoint> stepsSeries;
+    private PointsGraphSeries<DataPoint> calsSeries;
 
 
     private Timer mTimer;
@@ -107,7 +108,7 @@ public class HomeFragment extends Fragment {
         switch2 = view.findViewById(R.id.switch2);
         map_frame = view.findViewById(R.id.map_frame);
 
-//        cTime = view.findViewById(R.id.cTime);
+        cTime = view.findViewById(R.id.cTime);
 
 
         currentHeartRate =  view.findViewById(R.id.currentHeartRate);
@@ -287,6 +288,7 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    int refreshTime = 0;
     private void updateUI(){
 
         // here you check the value of getActivity() and break up if needed
@@ -299,39 +301,80 @@ public class HomeFragment extends Fragment {
                     currentCals.setText(String.valueOf(daily_cals));
 
                     Calendar c = Calendar.getInstance();
-//                    cTime.setText(c.get(Calendar.HOUR)+":"+c.get(Calendar.MINUTE)+":"+c.get(Calendar.SECOND));
+                    cTime.setText(c.get(Calendar.HOUR)+":"+c.get(Calendar.MINUTE)+":"+c.get(Calendar.SECOND));
 
-                    heartRateSeries = new LineGraphSeries<>(new DataPoint[] {
+                    heartRateSeries = new PointsGraphSeries<>(new DataPoint[] {
 
                             new DataPoint(0, 0)
                     });
 
-                    stepsSeries = new LineGraphSeries<>(new DataPoint[] {
+                    stepsSeries = new PointsGraphSeries<>(new DataPoint[] {
                             new DataPoint(0,0)
                     });
 
-                    calsSeries = new LineGraphSeries<>(new DataPoint[] {
+                    calsSeries = new PointsGraphSeries<>(new DataPoint[] {
                             new DataPoint(0, 0)
                     });
 
-                    heartRateSeries.appendData(new DataPoint(c.get(Calendar.SECOND), heart_rate),true, 30);
+
+                    heartRateSeries.appendData(new DataPoint(refreshTime++, heart_rate),true, 100);
+                    // set manual X bounds
+                    heartRateGraph.getViewport().setYAxisBoundsManual(true);
+                    heartRateGraph.getViewport().setMinY(0);
+                    heartRateGraph.getViewport().setMaxY(100);
+
+                    heartRateGraph.getViewport().setXAxisBoundsManual(true);
+                    heartRateGraph.getViewport().setMinX(0);
+                    heartRateGraph.getViewport().setMaxX(100);
+
+                    // enable scaling and scrolling
+                    heartRateGraph.getViewport().setScalable(true);
+                    heartRateGraph.getViewport().setScalableY(true);
                     heartRateGraph.addSeries(heartRateSeries);
 
-                    stepsSeries.appendData(new DataPoint(c.get(Calendar.SECOND), daily_steps),true, 30);
+
+
+                    stepsSeries.appendData(new DataPoint(refreshTime++, daily_steps),true, 100);
+                    // set manual X bounds
+                    stepsRateGraph.getViewport().setYAxisBoundsManual(true);
+                    stepsRateGraph.getViewport().setMinY(0);
+                    stepsRateGraph.getViewport().setMaxY(1200);
+
+                    stepsRateGraph.getViewport().setXAxisBoundsManual(true);
+                    stepsRateGraph.getViewport().setMinX(0);
+                    stepsRateGraph.getViewport().setMaxX(100);
+
+                    // enable scaling and scrolling
+                    stepsRateGraph.getViewport().setScalable(true);
+                    stepsRateGraph.getViewport().setScalableY(true);
                     stepsRateGraph.addSeries(stepsSeries);
 
-                    calsSeries.appendData(new DataPoint(c.get(Calendar.SECOND), daily_cals),true, 30);
+
+
+                    calsSeries.appendData(new DataPoint(refreshTime++, daily_cals),true, 100);
+                    // set manual X bounds
+                    calsRateGraph.getViewport().setYAxisBoundsManual(true);
+                    calsRateGraph.getViewport().setMinY(0);
+                    calsRateGraph.getViewport().setMaxY(5000);
+
+                    calsRateGraph.getViewport().setXAxisBoundsManual(true);
+                    calsRateGraph.getViewport().setMinX(0);
+                    calsRateGraph.getViewport().setMaxX(100);
+
+                    // enable scaling and scrolling
+                    calsRateGraph.getViewport().setScalable(true);
+                    calsRateGraph.getViewport().setScalableY(true);
                     calsRateGraph.addSeries(calsSeries);
+
+                    if(refreshTime > 100) {
+                        refreshTime = 0;
+                        heartRateGraph.removeAllSeries();
+                        stepsRateGraph.removeAllSeries();
+                        calsRateGraph.removeAllSeries();
+                    }
                 }
             });
         }
-    }
-    double start = -5;
-    double end = 5;
-    Random mRand = new Random();
-
-    private double getRandom() {
-        return start + (mRand.nextDouble() * (end - start));
     }
 
     @Override
