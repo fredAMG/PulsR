@@ -12,17 +12,12 @@
 
 
     <string-array name="UserStatusOut">
-        <item>Sign In</item>
-        <item>Sign Up</item>
+        <item>Sign Out</item>
+        <item>Change Password</item>
         <item>Setting</item>
         <item>Contact us</item>
     </string-array>
 
-    <string-array name="UserStatusIn">
-        <item>Sign Out</item>
-        <item>Setting</item>
-        <item>Contact us</item>
-    </string-array>
 
     <string-array name="Image_parkingSpot">
         <item>@drawable/maroon_5_payphone</item>

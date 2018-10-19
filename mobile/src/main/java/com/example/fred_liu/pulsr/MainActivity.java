@@ -14,6 +14,8 @@ import com.example.fred_liu.pulsr.Home.HomeFragment;
 import com.example.fred_liu.pulsr.Home.MapFragment;
 import com.example.fred_liu.pulsr.Me.LoginFragment;
 import com.example.fred_liu.pulsr.Me.MeFragment;
+import com.example.fred_liu.pulsr.Me.RegisterFragment;
+import com.example.fred_liu.pulsr.Me.ResetpasswordFragment;
 import com.example.fred_liu.pulsr.Notification.NotificationsFragment;
 import com.example.fred_liu.pulsr.Search.SearchFragment;
 import com.google.android.gms.common.ConnectionResult;
@@ -44,6 +46,8 @@ public class MainActivity extends AppCompatActivity implements
         NotificationsFragment.OnFragmentInteractionListener,
         MeFragment.OnFragmentInteractionListener,
         LoginFragment.OnFragmentInteractionListener,
+        ResetpasswordFragment.OnFragmentInteractionListener,
+        RegisterFragment.OnFragmentInteractionListener,
         MapFragment.OnMyLocationButtonClickListener,
         MapFragment.OnMapReadyCallBack,
         MapFragment.LocationListener{
@@ -55,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements
 //    private String mFilePath;
 //    private FileInputStream is = null;
     private static final String TAG = "MainActivity";
+    boolean loginStatus = false;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -78,9 +83,17 @@ public class MainActivity extends AppCompatActivity implements
                     fragmentTransaction.commit();
                     return true;
                 case R.id.navigation_me:
-                    fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                    fragmentTransaction.replace(R.id.content, new MeFragment());
-                    fragmentTransaction.commit();
+                    if (loginStatus) {
+                        fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                        fragmentTransaction.replace(R.id.content, new MeFragment());
+                        fragmentTransaction.commit();
+                    }
+                    else {
+                        fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                        fragmentTransaction.replace(R.id.content, new LoginFragment());
+                        fragmentTransaction.commit();
+                    }
+
                     return true;
             }
             return false;

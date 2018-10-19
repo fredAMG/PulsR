@@ -220,14 +220,20 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
     @Override
     public void onConnected(@Nullable Bundle bundle) {
         DataSourcesRequest dataSourcesRequest = new DataSourcesRequest.Builder()
-                .setDataTypes( DataType.TYPE_STEP_COUNT_CADENCE )
+                .setDataTypes( DataType.TYPE_STEP_COUNT_DELTA )
                 .setDataTypes( DataType.TYPE_HEART_RATE_BPM )
+                .setDataTypes( DataType.TYPE_CALORIES_EXPENDED )
                 .setDataSourceTypes( DataSource.TYPE_RAW )
                 .build();
         ResultCallback<DataSourcesResult> dataSourcesResultCallback = new ResultCallback<DataSourcesResult>() {
             @Override
             public void onResult(DataSourcesResult dataSourcesResult) {
-
+//                for( DataSource dataSource : dataSourcesResult.getDataSources() ) {
+//
+//                    if( DataType.TYPE_STEP_COUNT_CADENCE.equals( dataSource.getDataType() ) ) {
+//                        registerFitnessDataListener(dataSource, DataType.TYPE_STEP_COUNT_CADENCE);
+//                    }
+//                }
             }
         };
 
@@ -236,6 +242,24 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
 
     }
 
+//    private void registerFitnessDataListener(DataSource dataSource, DataType dataType) {
+//        SensorRequest request = new SensorRequest.Builder()
+//                .setDataSource( dataSource )
+//                .setDataType( dataType )
+//                .setSamplingRate( 3, TimeUnit.SECONDS )
+//                .build();
+//        Fitness.SensorsApi.add(mClient, request, this)
+//                .setResultCallback(new ResultCallback<Status>() {
+//                    @Override
+//                    public void onResult(Status status) {
+//                        if (status.isSuccess()) {
+//                            Log.e("GoogleFit", "SensorApi successfully added");
+//                        } else {
+//                            Log.e("GoogleFit", "adding status: " + status.getStatusMessage());
+//                        }
+//                    }
+//                });
+//    }
 
     @Override
     public void onConnectionSuspended(int i) {
@@ -282,7 +306,7 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
                 DataSet totalSet = totalResult.getTotal();
                 total = totalSet.isEmpty()
                         ? 0
-                        : totalSet.getDataPoints().get(0).getValue(Field.FIELD_AVERAGE).asFloat();
+                        : totalSet.getDataPoints().get(0).getValue(Field.FIELD_MAX).asFloat();
             } else {
                 Log.w(TAG, "There was a problem getting the heart rate.");
             }
@@ -360,19 +384,19 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
 
                     heartRateSeries = new PointsGraphSeries<>(new DataPoint[] {
 
-                            new DataPoint(0, 0)
+                            new DataPoint(0, heart_rate)
                     });
 
                     stepsSeries = new PointsGraphSeries<>(new DataPoint[] {
-                            new DataPoint(0,0)
+                            new DataPoint(0,daily_steps)
                     });
 
                     calsSeries = new PointsGraphSeries<>(new DataPoint[] {
-                            new DataPoint(0, 0)
+                            new DataPoint(0, daily_cals)
                     });
 
 
-                    heartRateSeries.appendData(new DataPoint(refreshTime++, heart_rate),true, 100);
+                    heartRateSeries.appendData(new DataPoint(refreshTime++, heart_rate),true, 60);
                     // set manual X bounds
                     heartRateGraph.getViewport().setYAxisBoundsManual(true);
                     heartRateGraph.getViewport().setMinY(0);
@@ -380,7 +404,7 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
 
                     heartRateGraph.getViewport().setXAxisBoundsManual(true);
                     heartRateGraph.getViewport().setMinX(0);
-                    heartRateGraph.getViewport().setMaxX(100);
+                    heartRateGraph.getViewport().setMaxX(60);
 
                     // enable scaling and scrolling
                     heartRateGraph.getViewport().setScalable(true);
@@ -389,7 +413,7 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
 
 
 
-                    stepsSeries.appendData(new DataPoint(refreshTime++, daily_steps),true, 100);
+                    stepsSeries.appendData(new DataPoint(refreshTime++, daily_steps),true, 60);
                     // set manual X bounds
                     stepsRateGraph.getViewport().setYAxisBoundsManual(true);
                     stepsRateGraph.getViewport().setMinY(daily_steps - 50);
@@ -397,7 +421,7 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
 
                     stepsRateGraph.getViewport().setXAxisBoundsManual(true);
                     stepsRateGraph.getViewport().setMinX(0);
-                    stepsRateGraph.getViewport().setMaxX(100);
+                    stepsRateGraph.getViewport().setMaxX(60);
 
                     // enable scaling and scrolling
                     stepsRateGraph.getViewport().setScalable(true);
@@ -406,7 +430,7 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
 
 
 
-                    calsSeries.appendData(new DataPoint(refreshTime++, daily_cals),true, 100);
+                    calsSeries.appendData(new DataPoint(refreshTime++, daily_cals),true, 60);
                     // set manual X bounds
                     calsRateGraph.getViewport().setYAxisBoundsManual(true);
                     calsRateGraph.getViewport().setMinY(daily_cals - 500);
@@ -414,14 +438,14 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
 
                     calsRateGraph.getViewport().setXAxisBoundsManual(true);
                     calsRateGraph.getViewport().setMinX(0);
-                    calsRateGraph.getViewport().setMaxX(100);
+                    calsRateGraph.getViewport().setMaxX(60);
 
                     // enable scaling and scrolling
                     calsRateGraph.getViewport().setScalable(true);
                     calsRateGraph.getViewport().setScalableY(true);
                     calsRateGraph.addSeries(calsSeries);
 
-                    if(refreshTime > 100) {
+                    if(refreshTime > 60) {
                         refreshTime = 0;
                         heartRateGraph.removeAllSeries();
                         stepsRateGraph.removeAllSeries();

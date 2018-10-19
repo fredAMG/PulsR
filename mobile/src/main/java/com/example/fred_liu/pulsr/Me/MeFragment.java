@@ -3,6 +3,7 @@ package com.example.fred_liu.pulsr.Me;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
@@ -48,12 +49,12 @@ public class MeFragment extends Fragment {
 
                 if (position == 0) {
                     fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-                    LoginFragment loginFragment = new LoginFragment();
-                    fragmentTransaction.replace(R.id.content, loginFragment);
+                    fragmentTransaction.replace(R.id.content, new LoginFragment());
                     fragmentTransaction.addToBackStack(null);
                     fragmentTransaction.commit();
                 }
                 if (position == 1) {
+                    showDialog();
 
                 }
                 if (position == 2) {
@@ -63,11 +64,8 @@ public class MeFragment extends Fragment {
 
                 }
                 if (position == 4) {
-//                    fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-//                    HistoryFragment historyFragment = new HistoryFragment();
-//                    fragmentTransaction.replace(R.id.content, historyFragment);
-//                    fragmentTransaction.addToBackStack(null);
-//                    fragmentTransaction.commit();
+
+
                 }
                 if (position == 5) {
 
@@ -78,6 +76,12 @@ public class MeFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private void showDialog() {
+        fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        DialogFragment changepasswordFragment = new ChangepasswordFragment();
+        changepasswordFragment.show(fragmentTransaction, "change password");
     }
 
     public interface OnFragmentInteractionListener {
