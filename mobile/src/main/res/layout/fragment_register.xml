@@ -79,7 +79,9 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/btn_register"
                 android:layout_marginTop="10dp"
+                android:textColor="@color/colorPrimary"
                 android:text="Already Registered ? Login Now !"
+                android:clickable="true"
                 android:textAlignment="center" />
 
             <ProgressBar
