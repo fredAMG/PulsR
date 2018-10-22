@@ -24,6 +24,7 @@
                 <EditText
                     android:id="@+id/et_email"
                     android:layout_width="match_parent"
+                    android:layout_marginTop="20dp"
                     android:layout_height="60dp"
                     android:drawableRight="@drawable/ic_email_black_24dp"
                     android:hint="Email"
@@ -41,6 +42,8 @@
                 <EditText
                     android:id="@+id/et_password"
                     android:layout_width="match_parent"
+                    android:layout_marginTop="20dp"
+
                     android:layout_height="60dp"
                     android:drawableRight="@drawable/ic_remove_red_eye_black_24dp"
                     android:hint="Password"
@@ -52,7 +55,7 @@
                 android:id="@+id/btn_login"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="20dp"
                 android:layout_below="@+id/ti_password"
                 android:drawableRight="@drawable/ic_arrow_forward_black_24dp"
                 android:text="Login" />
@@ -62,10 +65,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/btn_login"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:textColor="@color/colorPrimary"
                 android:text="Not Registered ? Register Now !"
-                android:clickable="true"
                 android:textAlignment="center" />
 
             <TextView
@@ -74,9 +76,10 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/tv_register"
                 android:textColor="@color/colorPrimary"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:text="Forgot Password ?"
                 android:textAlignment="center" />
+
 
             <ProgressBar
                 android:id="@+id/progress"

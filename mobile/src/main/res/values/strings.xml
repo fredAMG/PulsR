@@ -10,14 +10,12 @@
     <string name="IPAddress">IP Address</string>
     <string name="SignIn">Sign in</string>
 
-
-    <string-array name="UserStatusOut">
-        <item>Sign Out</item>
+    <string-array name="UserStatus">
+        <item>Log out</item>
         <item>Change Password</item>
         <item>Setting</item>
-        <item>Contact us</item>
+        <item>Contact Us</item>
     </string-array>
-
 
     <string-array name="Image_parkingSpot">
         <item>@drawable/maroon_5_payphone</item>

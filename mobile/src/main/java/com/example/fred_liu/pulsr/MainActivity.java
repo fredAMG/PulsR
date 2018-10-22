@@ -1,10 +1,12 @@
 package com.example.fred_liu.pulsr;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -12,53 +14,34 @@ import android.view.MenuItem;
 
 import com.example.fred_liu.pulsr.Home.HomeFragment;
 import com.example.fred_liu.pulsr.Home.MapFragment;
+import com.example.fred_liu.pulsr.Me.ChangepasswordFragment;
 import com.example.fred_liu.pulsr.Me.LoginFragment;
 import com.example.fred_liu.pulsr.Me.MeFragment;
 import com.example.fred_liu.pulsr.Me.RegisterFragment;
 import com.example.fred_liu.pulsr.Me.ResetpasswordFragment;
 import com.example.fred_liu.pulsr.Notification.NotificationsFragment;
 import com.example.fred_liu.pulsr.Search.SearchFragment;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.Scopes;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Scope;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.fitness.Fitness;
-import com.google.android.gms.fitness.FitnessStatusCodes;
-import com.google.android.gms.fitness.data.DataSet;
-import com.google.android.gms.fitness.data.DataSource;
-import com.google.android.gms.fitness.data.DataType;
-import com.google.android.gms.fitness.data.Field;
-import com.google.android.gms.fitness.request.DataReadRequest;
-import com.google.android.gms.fitness.request.DataSourcesRequest;
-import com.google.android.gms.fitness.result.DailyTotalResult;
-import com.google.android.gms.location.LocationServices;
-
-import java.io.FileInputStream;
-import java.util.Calendar;
-import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements
         HomeFragment.OnFragmentInteractionListener,
         SearchFragment.OnFragmentInteractionListener,
         NotificationsFragment.OnFragmentInteractionListener,
         MeFragment.OnFragmentInteractionListener,
-        LoginFragment.OnFragmentInteractionListener,
-        ResetpasswordFragment.OnFragmentInteractionListener,
-        RegisterFragment.OnFragmentInteractionListener,
+        ChangepasswordFragment.Listener,
+        ResetpasswordFragment.Listener,
         MapFragment.OnMyLocationButtonClickListener,
         MapFragment.OnMapReadyCallBack,
         MapFragment.LocationListener{
 
 
     FragmentTransaction fragmentTransaction;
+    ResetpasswordFragment resetpasswordFragment;
+
 
     // save files
 //    private String mFilePath;
 //    private FileInputStream is = null;
-    private static final String TAG = "MainActivity";
+    public static final String TAG = MainActivity.class.getSimpleName();
     boolean loginStatus = false;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -116,5 +99,36 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onFragmentInteraction(Uri uri) {
 
+    }
+
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        String data = intent.getData().getLastPathSegment();
+        Log.d(TAG, "onNewIntent: "+data);
+
+        resetpasswordFragment = (ResetpasswordFragment) getSupportFragmentManager().findFragmentByTag(ResetpasswordFragment.TAG);
+
+        if (resetpasswordFragment != null)
+            resetpasswordFragment.setToken(data);
+    }
+
+    @Override
+    public void onPasswordReset(String message) {
+
+        showSnackBarMessage(message);
+    }
+
+    private void showSnackBarMessage(String message) {
+
+        Snackbar.make(findViewById(R.id.container),message,Snackbar.LENGTH_SHORT).show();
+
+    }
+
+    @Override
+    public void onPasswordChanged() {
+        showSnackBarMessage("Password Changed Successfully !");
     }
 }

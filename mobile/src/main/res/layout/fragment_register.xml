@@ -26,6 +26,7 @@
                     android:id="@+id/et_name"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
                     android:drawableRight="@drawable/ic_me_black_24dp"
                     android:hint="Name"
                     android:inputType="text" />
@@ -43,6 +44,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableRight="@drawable/ic_email_black_24dp"
+                    android:layout_marginTop="20dp"
                     android:hint="Email"
                     android:inputType="textEmailAddress" />
 
@@ -60,6 +62,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:drawableRight="@drawable/ic_remove_red_eye_black_24dp"
+                    android:layout_marginTop="20dp"
                     android:hint="Password"
                     android:inputType="textPassword" />
 
@@ -70,6 +73,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/ti_password"
+                android:layout_marginTop="20dp"
                 android:drawableRight="@drawable/ic_arrow_forward_black_24dp"
                 android:text="Register" />
 
@@ -78,10 +82,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/btn_register"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="20dp"
                 android:textColor="@color/colorPrimary"
                 android:text="Already Registered ? Login Now !"
-                android:clickable="true"
                 android:textAlignment="center" />
 
             <ProgressBar
