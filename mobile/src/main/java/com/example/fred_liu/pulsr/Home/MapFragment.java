@@ -100,7 +100,7 @@ public class MapFragment extends Fragment {
                 // For dropping a marker at a point on the Map
 //                LatLng Location = new LatLng(longitude2, latitude2);
                 LatLng latLng = new LatLng( lat, lng);
-                googleMap.addMarker(new MarkerOptions().position(latLng).title(knownName).snippet(address+knownName).draggable(true));
+                googleMap.addMarker(new MarkerOptions().position(latLng).title(knownName).snippet(address).draggable(true));
 
                 // For zooming automatically to the location of the marker
                 CameraPosition cameraPosition = new CameraPosition.Builder().target(latLng).zoom(17).build();

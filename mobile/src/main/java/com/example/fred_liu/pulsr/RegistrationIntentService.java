@@ -52,7 +52,7 @@ public class RegistrationIntentService extends IntentService{
         requestBody.setRegistrationId(registrationId);
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://10.0.1.48:8080/")
+                .baseUrl("http://172.29.1.133:8080/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 

@@ -1,6 +1,7 @@
 package com.example.fred_liu.pulsr.Home;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -39,6 +40,9 @@ import android.widget.Toast;
 import com.example.fred_liu.pulsr.Notification.SpotAdapter;
 import com.example.fred_liu.pulsr.R;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.Scopes;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -57,6 +61,8 @@ import com.google.android.gms.fitness.request.OnDataPointListener;
 import com.google.android.gms.fitness.request.SensorRequest;
 import com.google.android.gms.fitness.result.DailyTotalResult;
 import com.google.android.gms.fitness.result.DataSourcesResult;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.MapView;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
@@ -72,6 +78,7 @@ import com.jjoe64.graphview.series.PointsGraphSeries;
 
 
 public class HomeFragment extends Fragment implements OnDataPointListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
+    private static final int PLACE_PICKER_REQUEST = 1;
     private GoogleApiClient mClient;
     private static final String TAG = "HomeFragment";
     private static final String AUTH_PENDING = "auth_state_pending";
@@ -176,7 +183,7 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
             e.printStackTrace();
         }
         String knownName = addresses.get(0).getFeatureName();
-        textLocation.setText(knownName);
+//        textLocation.setText(knownName);
 
         textLocation.setClickable(true);
         textLocation.setOnClickListener(new View.OnClickListener() {
@@ -299,9 +306,42 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
         },delay,period);
 
 
-
+        PlacePicker.IntentBuilder intentBuilder = new PlacePicker.IntentBuilder();
+        Intent intent = null;
+        try {
+            intent = intentBuilder.build(getActivity());
+        } catch (GooglePlayServicesRepairableException e) {
+            e.printStackTrace();
+        } catch (GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+        }
+        startActivityForResult(intent, PLACE_PICKER_REQUEST);
 
         return view;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode,
+                                 int resultCode, Intent data) {
+
+        if (requestCode == PLACE_PICKER_REQUEST
+                && resultCode == Activity.RESULT_OK) {
+
+            final Place place = PlacePicker.getPlace(getContext(), data);
+            final CharSequence name = place.getName();
+            final CharSequence address = place.getAddress();
+            String attributions = (String) place.getAttributions();
+            if (attributions == null) {
+                attributions = "";
+            }
+
+            textLocation.setText(name);
+            Log.i(TAG, "textLocation: " + name);
+
+
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
     @Override
