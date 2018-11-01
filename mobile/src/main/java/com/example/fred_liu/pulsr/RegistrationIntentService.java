@@ -7,6 +7,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Toast;
 
 import com.example.fred_liu.pulsr.Me.MeFragment;
+import com.example.fred_liu.pulsr.utils.Constants;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.iid.InstanceID;
 import com.example.fred_liu.pulsr.models.RequestBody;
@@ -52,7 +53,7 @@ public class RegistrationIntentService extends IntentService{
         requestBody.setRegistrationId(registrationId);
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("http://172.29.1.133:8080/")
+                .baseUrl(Constants.BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 

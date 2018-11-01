@@ -1,10 +1,12 @@
 package com.example.fred_liu.pulsr.Home;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
@@ -22,10 +24,13 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.CardView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -62,6 +67,9 @@ import com.google.android.gms.fitness.request.SensorRequest;
 import com.google.android.gms.fitness.result.DailyTotalResult;
 import com.google.android.gms.fitness.result.DataSourcesResult;
 import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceLikelihood;
+import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.MapView;
 import com.jjoe64.graphview.GraphView;
@@ -78,7 +86,6 @@ import com.jjoe64.graphview.series.PointsGraphSeries;
 
 
 public class HomeFragment extends Fragment implements OnDataPointListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
-    private static final int PLACE_PICKER_REQUEST = 1;
     private GoogleApiClient mClient;
     private static final String TAG = "HomeFragment";
     private static final String AUTH_PENDING = "auth_state_pending";
@@ -168,22 +175,6 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
         fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.map_frame, new MapFragment());
         fragmentTransaction.commit();
-
-        LocationManager locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        @SuppressLint("MissingPermission") Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
-        double lat = location.getLatitude();
-        double lng = location.getLongitude();
-        Geocoder geocoder;
-        List<Address> addresses = null;
-        geocoder = new Geocoder(getContext(), Locale.getDefault());
-        try {
-            addresses = geocoder.getFromLocation(lat, lng, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        String knownName = addresses.get(0).getFeatureName();
-//        textLocation.setText(knownName);
 
         textLocation.setClickable(true);
         textLocation.setOnClickListener(new View.OnClickListener() {
@@ -280,10 +271,14 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
                 .addApi(Fitness.HISTORY_API)
                 .addApi(Fitness.SESSIONS_API)
                 .addApi(Fitness.CONFIG_API)
+                .addApi( Places.GEO_DATA_API )
+                .addApi( Places.PLACE_DETECTION_API )
                 .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ))
                 .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
                 .addScope(new Scope(Scopes.FITNESS_LOCATION_READ))
-                .addConnectionCallbacks(this).addOnConnectionFailedListener(this)
+                .enableAutoManage(this.getActivity(), 0, this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
                 .build();
 
 
@@ -304,45 +299,42 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
                 updateUI();
             }
         },delay,period);
-
-
-        PlacePicker.IntentBuilder intentBuilder = new PlacePicker.IntentBuilder();
-        Intent intent = null;
-        try {
-            intent = intentBuilder.build(getActivity());
-        } catch (GooglePlayServicesRepairableException e) {
-            e.printStackTrace();
-        } catch (GooglePlayServicesNotAvailableException e) {
-            e.printStackTrace();
-        }
-        startActivityForResult(intent, PLACE_PICKER_REQUEST);
+        guessCurrentPlace();
 
         return view;
     }
 
-    @Override
-    public void onActivityResult(int requestCode,
-                                 int resultCode, Intent data) {
-
-        if (requestCode == PLACE_PICKER_REQUEST
-                && resultCode == Activity.RESULT_OK) {
-
-            final Place place = PlacePicker.getPlace(getContext(), data);
-            final CharSequence name = place.getName();
-            final CharSequence address = place.getAddress();
-            String attributions = (String) place.getAttributions();
-            if (attributions == null) {
-                attributions = "";
-            }
-
-            textLocation.setText(name);
-            Log.i(TAG, "textLocation: " + name);
-
-
-        } else {
-            super.onActivityResult(requestCode, resultCode, data);
+    private void guessCurrentPlace() {
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
         }
+        PendingResult<PlaceLikelihoodBuffer> result = Places.PlaceDetectionApi.getCurrentPlace(mClient, null);
+        result.setResultCallback( new ResultCallback<PlaceLikelihoodBuffer>() {
+            @Override
+            public void onResult( PlaceLikelihoodBuffer likelyPlaces ) {
+
+                PlaceLikelihood placeLikelihood = likelyPlaces.get(0);
+                String content = "";
+                if( placeLikelihood != null && placeLikelihood.getPlace() != null && !TextUtils.isEmpty( placeLikelihood.getPlace().getName() ) )
+                    content = "Most likely place: " + placeLikelihood.getPlace().getName() + "\n";
+                if( placeLikelihood != null )
+                    content += "Percent change of being there: " + (int) ( placeLikelihood.getLikelihood() * 100 ) + "%";
+
+                textLocation.setText(placeLikelihood.getPlace().getName());
+
+                Toast.makeText(getContext(), content, Toast.LENGTH_LONG).show();
+                likelyPlaces.release();
+            }
+        });
     }
+
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
@@ -502,7 +494,7 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    currentHeartRate.setText(String.valueOf(heart_rate));
+                    currentHeartRate.setText(String.format("%.0f", heart_rate));
                     currentSteps.setText(String.valueOf(daily_steps));
                     currentCals.setText(String.format("%.0f", daily_cals));
 
@@ -596,6 +588,12 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
         mTimer.cancel();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        mClient.stopAutoManage(getActivity());
+        mClient.disconnect();
+    }
 
 
     public interface OnFragmentInteractionListener {
