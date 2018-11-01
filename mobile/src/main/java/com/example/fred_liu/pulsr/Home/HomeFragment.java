@@ -1,13 +1,23 @@
 package com.example.fred_liu.pulsr.Home;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.location.Address;
+import android.location.Criteria;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -72,13 +82,13 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
     private float daily_cals;
 
 
-    TextView textDate, currentHeartRate, currentSteps, currentCals, cTime;
+    TextView textDate, currentHeartRate, currentSteps, currentCals, cTime, textLocation;
     GraphView heartRateGraph, stepsRateGraph, calsRateGraph;
+
     DatePicker datePicker;
-    Switch switch1, switch2;
+    Switch switch1, switch2, switch3, switch4, switch5;
     FrameLayout map_frame;
     FragmentTransaction fragmentTransaction;
-
     private static String mYear;
     private static String mMonth;
     private static String mDay;
@@ -106,8 +116,12 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
         datePicker = view.findViewById(R.id.datePicker);
         switch1 = view.findViewById(R.id.switch1);
         switch2 = view.findViewById(R.id.switch2);
-        map_frame = view.findViewById(R.id.map_frame);
+        switch3 = view.findViewById(R.id.switch3);
+        switch4 = view.findViewById(R.id.switch4);
+        switch5 = view.findViewById(R.id.switch5);
 
+        map_frame = view.findViewById(R.id.map_frame);
+        textLocation = view.findViewById(R.id.textLocation);
         cTime = view.findViewById(R.id.cTime);
 
 
@@ -133,10 +147,46 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
         switch2.setChecked(false);
         map_frame.setVisibility(View.GONE);
 
+        switch3.setChecked(false);
+        heartRateGraph.setVisibility(View.GONE);
+
+        switch4.setChecked(false);
+        stepsRateGraph.setVisibility(View.GONE);
+
+        switch5.setChecked(false);
+        calsRateGraph.setVisibility(View.GONE);
+
+
 
         fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.map_frame, new MapFragment());
         fragmentTransaction.commit();
+
+        LocationManager locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+        Criteria criteria = new Criteria();
+        @SuppressLint("MissingPermission") Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+        double lat = location.getLatitude();
+        double lng = location.getLongitude();
+        Geocoder geocoder;
+        List<Address> addresses = null;
+        geocoder = new Geocoder(getContext(), Locale.getDefault());
+        try {
+            addresses = geocoder.getFromLocation(lat, lng, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String knownName = addresses.get(0).getFeatureName();
+        textLocation.setText(knownName);
+
+        textLocation.setClickable(true);
+        textLocation.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.content, new MapFragment());
+                fragmentTransaction.addToBackStack(null);
+                fragmentTransaction.commit();
+            }
+        });
 
         final CompoundButton.OnCheckedChangeListener onCheckedChangeListener1 = new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -172,8 +222,45 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
                 }
             }
         };
+        final CompoundButton.OnCheckedChangeListener onCheckedChangeListener3 = new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(switch3.isChecked()){
+                    heartRateGraph.setVisibility(View.VISIBLE);
+                }
+                else if(!switch1.isChecked()) {
+                    heartRateGraph.setVisibility(View.GONE);
+                }
+            }
+        };
+        final CompoundButton.OnCheckedChangeListener onCheckedChangeListener4 = new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(switch4.isChecked()){
+                    stepsRateGraph.setVisibility(View.VISIBLE);
+                }
+                else if(!switch1.isChecked()) {
+                    stepsRateGraph.setVisibility(View.GONE);
+                }
+            }
+        };
+        final CompoundButton.OnCheckedChangeListener onCheckedChangeListener5 = new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(switch5.isChecked()){
+                    calsRateGraph.setVisibility(View.VISIBLE);
+                }
+                else if(!switch1.isChecked()) {
+                    calsRateGraph.setVisibility(View.GONE);
+                }
+            }
+        };
+
         switch1.setOnCheckedChangeListener(onCheckedChangeListener1);
         switch2.setOnCheckedChangeListener(onCheckedChangeListener2);
+        switch3.setOnCheckedChangeListener(onCheckedChangeListener3);
+        switch4.setOnCheckedChangeListener(onCheckedChangeListener4);
+        switch5.setOnCheckedChangeListener(onCheckedChangeListener5);
 
 
         if (savedInstanceState != null) {
@@ -377,7 +464,7 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
                 public void run() {
                     currentHeartRate.setText(String.valueOf(heart_rate));
                     currentSteps.setText(String.valueOf(daily_steps));
-                    currentCals.setText(String.valueOf(daily_cals));
+                    currentCals.setText(String.format("%.0f", daily_cals));
 
                     Calendar c = Calendar.getInstance();
                     cTime.setText(c.get(Calendar.HOUR)+":"+c.get(Calendar.MINUTE)+":"+c.get(Calendar.SECOND));
@@ -412,7 +499,6 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
                     heartRateGraph.addSeries(heartRateSeries);
 
 
-
                     stepsSeries.appendData(new DataPoint(refreshTime++, daily_steps),true, 60);
                     // set manual X bounds
                     stepsRateGraph.getViewport().setYAxisBoundsManual(true);
@@ -444,6 +530,8 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
                     calsRateGraph.getViewport().setScalable(true);
                     calsRateGraph.getViewport().setScalableY(true);
                     calsRateGraph.addSeries(calsSeries);
+
+
 
                     if(refreshTime > 60) {
                         refreshTime = 0;

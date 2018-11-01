@@ -1,9 +1,16 @@
 package com.example.fred_liu.pulsr.Home;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Criteria;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,35 +27,22 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
 /**
  * Created by fredliu on 12/8/17.
  */
 
-public class MapFragment extends android.support.v4.app.Fragment {
+public class MapFragment extends Fragment {
     MapView mMapView;
     private GoogleMap googleMap;
-    int position;
-    String title;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_map, container, false);
 
-
-        Bundle bundle = this.getArguments();
-
-        if (bundle != null) {
-            position = getArguments().getInt("position");
-            title = getArguments().getString("title");
-        }
-        else {
-            position = 0;
-            title = "VT Parking Lot";
-
-        }
-
-//        final double longitude2 = Double.parseDouble(getResources().getStringArray(R.array.ParkingLotLongitude)[position]);
-//        final double latitude2 = Double.parseDouble(getResources().getStringArray(R.array.ParkingLotLatitude)[position]);;
 
         mMapView = (MapView) rootView.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
@@ -79,14 +73,37 @@ public class MapFragment extends android.support.v4.app.Fragment {
                 mMap.setMyLocationEnabled(true);
                 mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
+                LocationManager locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
+                Criteria criteria = new Criteria();
+                Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+                double lat = location.getLatitude();
+                double lng = location.getLongitude();
+
+                Geocoder geocoder;
+                List<Address> addresses = null;
+                geocoder = new Geocoder(getContext(), Locale.getDefault());
+
+                try {
+                    addresses = geocoder.getFromLocation(lat, lng, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+                String city = addresses.get(0).getLocality();
+                String state = addresses.get(0).getAdminArea();
+                String country = addresses.get(0).getCountryName();
+                String postalCode = addresses.get(0).getPostalCode();
+                String knownName = addresses.get(0).getFeatureName();
+
 
                 // For dropping a marker at a point on the Map
 //                LatLng Location = new LatLng(longitude2, latitude2);
-                LatLng Location = new LatLng( 37.231851, -80.418522);
-                googleMap.addMarker(new MarkerOptions().position(Location).title(title).snippet("Spot Available").draggable(true));
+                LatLng latLng = new LatLng( lat, lng);
+                googleMap.addMarker(new MarkerOptions().position(latLng).title(knownName).snippet(address+knownName).draggable(true));
 
                 // For zooming automatically to the location of the marker
-                CameraPosition cameraPosition = new CameraPosition.Builder().target(Location).zoom(17).build();
+                CameraPosition cameraPosition = new CameraPosition.Builder().target(latLng).zoom(17).build();
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
 
@@ -107,9 +124,25 @@ public class MapFragment extends android.support.v4.app.Fragment {
                         double longitude3 = marker.getPosition().longitude;
                         double latitude3 = marker.getPosition().latitude;
                         // For dropping a marker at a point on the Map
-                        LatLng Location = new LatLng(longitude3, latitude3);
+                        LatLng latLng1 = new LatLng(longitude3, latitude3);
+                        Geocoder geocoder;
+                        List<Address> addresses = null;
+                        geocoder = new Geocoder(getContext(), Locale.getDefault());
+
+                        try {
+                            addresses = geocoder.getFromLocation(lat, lng, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        String address = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+                        String city = addresses.get(0).getLocality();
+                        String state = addresses.get(0).getAdminArea();
+                        String country = addresses.get(0).getCountryName();
+                        String postalCode = addresses.get(0).getPostalCode();
+                        String knownName = addresses.get(0).getFeatureName();
                         //LatLng Location = new LatLng(x, y);
-                        googleMap.addMarker(new MarkerOptions().position(Location).title(title).snippet("Spot Available").draggable(true));
+                        googleMap.addMarker(new MarkerOptions().position(latLng1).title(knownName).snippet(address).draggable(true));
                     }
                 });
             }

@@ -1,11 +1,26 @@
 package com.example.fred_liu.pulsr.Me;
 
+import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
+import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,11 +32,15 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.fred_liu.pulsr.MainActivity;
 import com.example.fred_liu.pulsr.R;
+import com.example.fred_liu.pulsr.RegistrationIntentService;
 import com.example.fred_liu.pulsr.model.Response;
 import com.example.fred_liu.pulsr.model.User;
 import com.example.fred_liu.pulsr.network.NetworkUtil;
 import com.example.fred_liu.pulsr.utils.Constants;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -40,21 +59,22 @@ public class MeFragment extends Fragment{
 
     ImageView icon;
     ListView userListView;
-    FragmentTransaction fragmentTransaction;
 
     public static final String TAG = MeFragment.class.getSimpleName();
 
     private TextView mTvName;
     private TextView mTvEmail;
     private TextView mTvDate;
-    private Button mBtChangePassword;
-    private Button mBtLogout;
+
 
     private ProgressBar mProgressbar;
 
     private SharedPreferences mSharedPreferences;
     private String mToken;
     private String mEmail;
+    public int loginStatus = 0;
+    public int deviceStatus = 0;
+
 
     private CompositeSubscription mSubscriptions;
 
@@ -67,6 +87,8 @@ public class MeFragment extends Fragment{
         mSubscriptions = new CompositeSubscription();
         initSharedPreferences();
         loadProfile();
+
+//        bottomNavigationView.setVisibility(View.VISIBLE);
 
         icon = (ImageView) view.findViewById(R.id.icon);
         userListView = (ListView) view.findViewById(R.id.userListView);
@@ -84,7 +106,6 @@ public class MeFragment extends Fragment{
         mTvDate = (TextView) view.findViewById(R.id.tv_date);
         mProgressbar = (ProgressBar) view.findViewById(R.id.progress);
 
-
         userListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
@@ -93,8 +114,7 @@ public class MeFragment extends Fragment{
                     logout();
                 }
                 if (position == 1) {
-                    showDialog();
-
+                    showChangepasswordDialog();
                 }
                 if (position == 2) {
 
@@ -107,12 +127,6 @@ public class MeFragment extends Fragment{
 
         return view;
     }
-
-//    private void showDialog() {
-//        fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-//        DialogFragment changepasswordFragment = new ChangepasswordFragment();
-//        changepasswordFragment.show(fragmentTransaction, "change password");
-//    }
 
     public interface OnFragmentInteractionListener {
     }
@@ -132,12 +146,13 @@ public class MeFragment extends Fragment{
         editor.putString(Constants.EMAIL,"");
         editor.putString(Constants.TOKEN,"");
         editor.apply();
-        fragmentTransaction = getFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.content, new LoginFragment());
-        fragmentTransaction.commit();
+        loginStatus = 0;
+        deviceStatus = 1;
+
+        sendData();
     }
 
-    private void showDialog(){
+    private void showChangepasswordDialog(){
 
         ChangepasswordFragment changepasswordFragment = new ChangepasswordFragment();
 
@@ -200,4 +215,17 @@ public class MeFragment extends Fragment{
         mSubscriptions.unsubscribe();
     }
 
+    private void sendData()
+    {
+        //INTENT OBJ
+        Intent i = new Intent(getActivity().getBaseContext(),
+                MainActivity.class);
+
+        //PACK DATA
+        i.putExtra("Login_Status", loginStatus);
+        i.putExtra("Device_Status", deviceStatus);
+
+        //START ACTIVITY
+        getActivity().startActivity(i);
+    }
 }

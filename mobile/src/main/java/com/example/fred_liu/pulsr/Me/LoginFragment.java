@@ -23,6 +23,8 @@ import rx.subscriptions.CompositeSubscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import retrofit2.adapter.rxjava.HttpException;
+
+import com.example.fred_liu.pulsr.MainActivity;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -51,9 +53,7 @@ public class LoginFragment extends Fragment {
 
     private CompositeSubscription mSubscriptions;
     private SharedPreferences mSharedPreferences;
-
-    FragmentTransaction fragmentTransaction;
-
+    public int loginStatus = 0;
 
     @Nullable
     @Override
@@ -78,7 +78,7 @@ public class LoginFragment extends Fragment {
 
         mBtLogin.setOnClickListener(view -> login());
         mTvRegister.setOnClickListener(view -> goToRegister());
-        mTvForgotPassword.setOnClickListener(view -> showDialog());
+        mTvForgotPassword.setOnClickListener(view -> showeRsetpasswordDialog());
 
     }
 
@@ -146,11 +146,8 @@ public class LoginFragment extends Fragment {
         mEtEmail.setText(null);
         mEtPassword.setText(null);
 
-
-        fragmentTransaction = getFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.content, new MeFragment());
-        fragmentTransaction.commit();
-
+        loginStatus = 1;
+        sendData();
     }
 
     private void handleError(Throwable error) {
@@ -192,7 +189,7 @@ public class LoginFragment extends Fragment {
         fragmentTransaction.commit();
     }
 
-    private void showDialog(){
+    private void showeRsetpasswordDialog(){
 
         ResetpasswordFragment resetpasswordFragment = new ResetpasswordFragment();
 
@@ -203,5 +200,18 @@ public class LoginFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         mSubscriptions.unsubscribe();
+    }
+
+    private void sendData()
+    {
+        //INTENT OBJ
+        Intent i = new Intent(getActivity().getBaseContext(),
+                MainActivity.class);
+
+        //PACK DATA
+        i.putExtra("Login_Status", loginStatus);
+
+        //START ACTIVITY
+        getActivity().startActivity(i);
     }
 }

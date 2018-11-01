@@ -18,6 +18,8 @@
 
     </FrameLayout>
 
+
+
     <android.support.design.widget.BottomNavigationView
         android:id="@+id/navigation"
         android:layout_width="match_parent"
@@ -26,5 +28,8 @@
         android:background="?android:attr/windowBackground"
         app:menu="@menu/navigation"
         app:labelVisibilityMode="labeled"/>
+
+
+
 
 </LinearLayout>
