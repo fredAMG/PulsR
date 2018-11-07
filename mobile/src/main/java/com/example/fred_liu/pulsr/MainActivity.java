@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity implements
     public static final String REGISTRATION_PROCESS = "registration";
     public static final String MESSAGE_RECEIVED = "message_received";
 
+
     public static final String TAG = MainActivity.class.getSimpleName();
     public int loginStatus = 0;
     public int deviceStatus = 0;
@@ -232,7 +233,6 @@ public class MainActivity extends AppCompatActivity implements
         Intent i = getIntent();
         loginStatus = i.getIntExtra("Login_Status", 0);
         deviceStatus = i.getIntExtra("Device_Status", 0);
-
     }
 
     public void startRegisterProcess(){
@@ -284,6 +284,10 @@ public class MainActivity extends AppCompatActivity implements
         });
 
         builder.show();
+
+        Intent intent = new Intent(NotificationsFragment.NOTIFICATION_MESSAGE);
+        intent.putExtra("notification_message",message);
+        sendBroadcast(intent);
     }
 
     private String getDeviceId(){

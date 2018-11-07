@@ -1,20 +1,33 @@
 package com.example.fred_liu.pulsr.Notification;
 
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.fred_liu.pulsr.GCMService;
+import com.example.fred_liu.pulsr.MainActivity;
 import com.example.fred_liu.pulsr.R;
 
+import org.w3c.dom.Text;
+
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 
@@ -22,6 +35,19 @@ public class NotificationsFragment extends Fragment {
 
     ListView notificationListView;
     SwipeRefreshLayout swipeRefreshLayout;
+    public static final String NOTIFICATION_MESSAGE = "notification_message";
+    ArrayList<ParkingSpot> parkingSpots = new ArrayList<ParkingSpot>(1);
+    SpotAdapter spotAdapter;
+    int index = 0;
+
+    private String[] nDate = new String[1];
+    private String[] nTime = new String[1];
+    private String[] nLocation = new String[1];
+    private String[] nHeart_Rate = new String[1];
+    private String[] nSteps = new String[1];
+    private String[] nCals = new String[1];
+    private String[] nSongs = new String[1];
+
 
     public NotificationsFragment() {
         // Required empty public constructor
@@ -36,20 +62,19 @@ public class NotificationsFragment extends Fragment {
 
         notificationListView = (ListView) view.findViewById(R.id.notificationListView);
         swipeRefreshLayout = view.findViewById(R.id.swipeRefresh);
+
+
         SwipeRefreshLayout.OnRefreshListener onRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                SpotAdapter spotAdapter = new SpotAdapter(getActivity(), R.layout.fragment_notification_detail, getData());
 
+                spotAdapter = new SpotAdapter(getActivity(), R.layout.fragment_notification_detail, parkingSpots);
                 notificationListView.setAdapter(spotAdapter);
+
                 swipeRefreshLayout.setRefreshing(false);
             }
         };
         swipeRefreshLayout.setOnRefreshListener(onRefreshListener);
-
-        SpotAdapter spotAdapter = new SpotAdapter(getActivity(), R.layout.fragment_notification_detail, getData());
-
-        notificationListView.setAdapter(spotAdapter);
 
         notificationListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -60,28 +85,50 @@ public class NotificationsFragment extends Fragment {
             }
         });
 
+        IntentFilter filter = new IntentFilter(NOTIFICATION_MESSAGE);
+        getActivity().registerReceiver(broadcastReceiver, filter);
 
         return view;
     }
 
-    private ArrayList<ParkingSpot> getData() {
-        final ArrayList<ParkingSpot> parkingSpot = new ArrayList<>();
-        TypedArray imgs = getResources().obtainTypedArray(R.array.Image_parkingSpot);
-        for (int i = 0; i < imgs.length(); i++) {
-            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), imgs.getResourceId(i, -1));
-            parkingSpot.add(new ParkingSpot(bitmap,
-                    getResources().getStringArray(R.array.DateList)[i],
-                    getResources().getStringArray(R.array.TimeList)[i],
-                    getResources().getStringArray(R.array.LocationList)[i],
-                    getResources().getStringArray(R.array.HeartRateList)[i],
-                    getResources().getStringArray(R.array.StepsList)[i],
-                    getResources().getStringArray(R.array.CalsList)[i],
-                    getResources().getStringArray(R.array.PlayingList)[i]));
-        }
-        return parkingSpot;
+    public interface OnFragmentInteractionListener {
     }
 
-    public interface OnFragmentInteractionListener {
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String notification_message = intent.getStringExtra("notification_message");
+
+            TypedArray nImgs = getResources().obtainTypedArray(R.array.Image_parkingSpot);
+            Bitmap nBitmap = BitmapFactory.decodeResource(getResources(), nImgs.getResourceId(0, 0));
+
+
+            parkingSpots.add(new ParkingSpot(
+                    nBitmap,
+                    nDate[index]= "2018",
+                    nTime[index] = "now",
+                    nLocation[index]= "Blacksburg",
+                    nHeart_Rate[index]= notification_message,
+                    nSteps[index]= notification_message,
+                    nCals[index]= notification_message,
+                    nSongs[index]= notification_message));
+
+            spotAdapter = new SpotAdapter(getActivity(), R.layout.fragment_notification_detail, parkingSpots);
+            notificationListView.setAdapter(spotAdapter);
+        }
+    };
+
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (broadcastReceiver != null) {
+            try {
+                getActivity().unregisterReceiver(broadcastReceiver);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }
