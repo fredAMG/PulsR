@@ -6,13 +6,37 @@
     tools:context=".Search.SearchFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <SearchView
+
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="8dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginLeft="10dp"/>
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <SearchView
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            tools:layout_editor_absoluteX="8dp"
+            tools:layout_editor_absoluteY="8dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"/>
+
+        <android.support.v4.widget.SwipeRefreshLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/swipeRefresh2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/searchListView"
+                android:layout_marginTop="10dp">
+
+            </ListView>
+        </android.support.v4.widget.SwipeRefreshLayout>
+
+
+    </LinearLayout>
 
 </FrameLayout>

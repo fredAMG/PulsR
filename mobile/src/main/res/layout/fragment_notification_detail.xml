@@ -102,12 +102,12 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="#Heart Rate:"/>
+                android:text="#Running time:"/>
             <TextView
                 android:id="@+id/heartRate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="62"
+                android:text="32"
                 android:layout_marginLeft="20dp"/>
 
         </LinearLayout>
@@ -121,7 +121,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="#Steps:"/>
+                android:text="#Distance:"/>
             <TextView
                 android:id="@+id/steps"
                 android:layout_width="wrap_content"
@@ -159,7 +159,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="#Song:"/>
+                android:text="#Status:"/>
             <TextView
                 android:id="@+id/playing"
                 android:layout_width="wrap_content"

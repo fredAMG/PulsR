@@ -28,7 +28,10 @@ import com.example.fred_liu.pulsr.R;
 import org.w3c.dom.Text;
 
 import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 
 public class NotificationsFragment extends Fragment {
@@ -60,8 +63,22 @@ public class NotificationsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_notification, container, false);
 
 
-        notificationListView = (ListView) view.findViewById(R.id.notificationListView);
+        notificationListView = view.findViewById(R.id.notificationListView);
         swipeRefreshLayout = view.findViewById(R.id.swipeRefresh);
+
+        TypedArray nImgs = getResources().obtainTypedArray(R.array.Image_parkingSpot);
+        Bitmap nBitmap = BitmapFactory.decodeResource(getResources(), nImgs.getResourceId(0, 0));
+        parkingSpots.add(new ParkingSpot(
+                nBitmap,
+                nDate[0]= "2018-11-11",
+                nTime[0] = "5:00pm",
+                nLocation[0]= "Blacksburg",
+                nHeart_Rate[0]= "32",
+                nSteps[0]= "4.2",
+                nCals[0]= "1320",
+                nSongs[0]= "Goal accomplished!"));
+        spotAdapter = new SpotAdapter(getActivity(), R.layout.fragment_notification_detail, parkingSpots);
+        notificationListView.setAdapter(spotAdapter);
 
 
         SwipeRefreshLayout.OnRefreshListener onRefreshListener = new SwipeRefreshLayout.OnRefreshListener() {
@@ -102,11 +119,17 @@ public class NotificationsFragment extends Fragment {
             TypedArray nImgs = getResources().obtainTypedArray(R.array.Image_parkingSpot);
             Bitmap nBitmap = BitmapFactory.decodeResource(getResources(), nImgs.getResourceId(0, 0));
 
+            Calendar calendar = Calendar.getInstance();
+            SimpleDateFormat simpleDateFormatDate = new SimpleDateFormat("yyyy-MM-dd");
+            String date = simpleDateFormatDate.format(new Date());
+
+            SimpleDateFormat simpleDateFormatTime = new SimpleDateFormat("HH:mm");
+            String now = simpleDateFormatTime.format(calendar.getTime());
 
             parkingSpots.add(new ParkingSpot(
                     nBitmap,
-                    nDate[index]= "2018",
-                    nTime[index] = "now",
+                    nDate[index]= date,
+                    nTime[index] = now,
                     nLocation[index]= "Blacksburg",
                     nHeart_Rate[index]= notification_message,
                     nSteps[index]= notification_message,

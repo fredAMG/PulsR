@@ -91,14 +91,15 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
                     // for ActivityCompat#requestPermissions for more details.
                     return;
                 }
+
                 mMap.setMyLocationEnabled(true);
                 mMap.getUiSettings().setMyLocationButtonEnabled(true);
 
                 LocationManager locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
-                Criteria criteria = new Criteria();
-                Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+                Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
                 double lat = location.getLatitude();
                 double lng = location.getLongitude();
+
 
                 Geocoder geocoder;
                 List<Address> addresses = null;
@@ -119,9 +120,8 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
 
 
                 // For dropping a marker at a point on the Map
-//                LatLng Location = new LatLng(longitude2, latitude2);
                 LatLng latLng = new LatLng(lat, lng);
-                googleMap.addMarker(new MarkerOptions().position(latLng).title(city).snippet(address).draggable(true));
+                googleMap.addMarker(new MarkerOptions().position(latLng).title(knownName).snippet(address).draggable(true));
 
                 // For zooming automatically to the location of the marker
                 CameraPosition cameraPosition = new CameraPosition.Builder().target(latLng).zoom(17).build();
@@ -151,7 +151,7 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
                         geocoder = new Geocoder(getContext(), Locale.getDefault());
 
                         try {
-                            addresses = geocoder.getFromLocation(lat, lng, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+                            addresses = geocoder.getFromLocation(latitude3, longitude3, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -163,7 +163,7 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
                         String postalCode = addresses.get(0).getPostalCode();
                         String knownName = addresses.get(0).getFeatureName();
                         //LatLng Location = new LatLng(x, y);
-                        googleMap.addMarker(new MarkerOptions().position(latLng1).title(city).snippet(address).draggable(true));
+                        googleMap.addMarker(new MarkerOptions().position(latLng1).title(knownName).snippet(address).draggable(true));
                     }
                 });
             }

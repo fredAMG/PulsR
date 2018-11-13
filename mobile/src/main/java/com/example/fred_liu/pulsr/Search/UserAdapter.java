@@ -1,4 +1,4 @@
-package com.example.fred_liu.pulsr.Notification;
+package com.example.fred_liu.pulsr.Search;
 
 import android.app.Activity;
 import android.content.Context;
@@ -6,23 +6,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.fred_liu.pulsr.R;
 
 import java.util.ArrayList;
 
-/**
- * Created by fredliu on 12/7/17.
- */
-
-public class DetailAdapter extends ArrayAdapter<Detail> {
-
+public class UserAdapter extends ArrayAdapter<UserDetail> {
     private Context context;
     private int layoutResourceId;
-    private ArrayList<Detail> data = new ArrayList<Detail>();
+    private ArrayList<UserDetail> data = new ArrayList<UserDetail>();
 
-    public DetailAdapter(Context context, int layoutResourceId, ArrayList<Detail> data) {
+    public UserAdapter(Context context, int layoutResourceId, ArrayList<UserDetail> data) {
         super(context, layoutResourceId, data);
         this.layoutResourceId = layoutResourceId;
         this.context = context;
@@ -32,28 +28,32 @@ public class DetailAdapter extends ArrayAdapter<Detail> {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
-        ViewHolder holder;
+        UserAdapter.ViewHolder holder;
 
         if (row == null) {
             LayoutInflater inflater = ((Activity) context).getLayoutInflater();
             row = inflater.inflate(layoutResourceId, parent, false);
-            holder = new ViewHolder();
-            holder.content = (TextView) row.findViewById(R.id.content);
-            holder.time = (TextView) row.findViewById(R.id.time);
+            holder = new UserAdapter.ViewHolder();
+            holder.name = (TextView) row.findViewById(R.id.d_name);
+            holder.email = (TextView) row.findViewById(R.id.d_email);
+            holder.date = (TextView) row.findViewById(R.id.d_date);
             row.setTag(holder);
         } else {
-            holder = (ViewHolder) row.getTag();
+            holder = (UserAdapter.ViewHolder) row.getTag();
         }
 
 
-        Detail item = data.get(position);
-        holder.content.setText(item.getContent());
-        holder.time.setText(item.getTime());
+        UserDetail item = data.get(position);
+        holder.name.setText(item.getName());
+        holder.email.setText(item.getEmail());
+        holder.date.setText(item.getDate());
         return row;
     }
 
     class ViewHolder {
-        TextView content;
-        TextView time;
+        TextView name;
+        TextView email;
+        TextView date;
+
     }
 }

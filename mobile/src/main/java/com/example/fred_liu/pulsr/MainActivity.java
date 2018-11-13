@@ -30,6 +30,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.fred_liu.pulsr.Home.Calendar.CalendarFragment;
+import com.example.fred_liu.pulsr.Home.DecoviewFragment;
 import com.example.fred_liu.pulsr.Home.HomeFragment;
 import com.example.fred_liu.pulsr.Home.MapFragment;
 import com.example.fred_liu.pulsr.Me.ChangepasswordFragment;
@@ -39,6 +41,7 @@ import com.example.fred_liu.pulsr.Me.RegisterFragment;
 import com.example.fred_liu.pulsr.Me.ResetpasswordFragment;
 import com.example.fred_liu.pulsr.Notification.NotificationsFragment;
 import com.example.fred_liu.pulsr.Search.SearchFragment;
+import com.example.fred_liu.pulsr.Timer.TimerActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.gcm.GcmListenerService;
@@ -48,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements
         SearchFragment.OnFragmentInteractionListener,
         NotificationsFragment.OnFragmentInteractionListener,
         MeFragment.OnFragmentInteractionListener,
+        DecoviewFragment.OnFragmentInteractionListener,
         ChangepasswordFragment.Listener,
         ResetpasswordFragment.Listener,
         MapFragment.OnMyLocationButtonClickListener,
@@ -118,6 +122,11 @@ public class MainActivity extends AppCompatActivity implements
 
         receiveData();
         registerReceiver();
+        if(getIntent().getStringExtra("message") != null) {
+            if(getIntent().getStringExtra("message").equals("loginStatus_from_DistanceActivity")) {
+                loginStatus = getIntent().getIntExtra("loginStatus",0);
+            }
+        }
 
         if (loginStatus == 1) {
             bottomNavigationView.setVisibility(View.VISIBLE);
@@ -184,16 +193,13 @@ public class MainActivity extends AppCompatActivity implements
         }
         Intent intent = getIntent();
         if(intent != null){
-            if(intent.getAction().equals(MESSAGE_RECEIVED)){
-                String message = intent.getStringExtra("message");
-                showAlertDialog(message);
+            if(intent.getAction() != null){
+                if(intent.getAction().equals(MESSAGE_RECEIVED)){
+                    String message = intent.getStringExtra("message");
+                    showAlertDialog(message);
+                }
             }
         }
-    }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
     }
 
 

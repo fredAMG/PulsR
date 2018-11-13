@@ -1,12 +1,19 @@
 package com.example.fred_liu.pulsr.Home;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.content.res.TypedArray;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Criteria;
 import android.location.Geocoder;
@@ -25,6 +32,7 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -35,15 +43,24 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnticipateInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.DatePicker;
+
+import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.fred_liu.pulsr.Home.Calendar.CalendarFragment;
+import com.example.fred_liu.pulsr.Notification.ParkingSpot;
 import com.example.fred_liu.pulsr.Notification.SpotAdapter;
 import com.example.fred_liu.pulsr.R;
+import com.example.fred_liu.pulsr.Timer.TimerActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -72,6 +89,10 @@ import com.google.android.gms.location.places.PlaceLikelihoodBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.MapView;
+import com.hookedonplay.decoviewlib.DecoView;
+import com.hookedonplay.decoviewlib.charts.DecoDrawEffect;
+import com.hookedonplay.decoviewlib.charts.SeriesItem;
+import com.hookedonplay.decoviewlib.events.DecoEvent;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
@@ -85,35 +106,37 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.jjoe64.graphview.series.PointsGraphSeries;
 
 
-public class HomeFragment extends Fragment implements OnDataPointListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
+public class HomeFragment extends Fragment implements OnDataPointListener, ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
     private GoogleApiClient mClient;
     private static final String TAG = "HomeFragment";
     private static final String AUTH_PENDING = "auth_state_pending";
     protected boolean authInProgress = false;
-    final Calendar currentTime = Calendar.getInstance();
+    private Calendar calendar;
     private float heart_rate;
     private long daily_steps;
     private float daily_cals;
 
 
-    TextView textDate, currentHeartRate, currentSteps, currentCals, cTime, textLocation;
+    TextView textDate, currentHeartRate, currentSteps, currentCals, textLocation;
     GraphView heartRateGraph, stepsRateGraph, calsRateGraph;
-
-    DatePicker datePicker;
+    FloatingActionButton start_workout;
     Switch switch1, switch2, switch3, switch4, switch5;
     FrameLayout map_frame;
+    FrameLayout decoView_frame;
+    FrameLayout calendar_frame;
     FragmentTransaction fragmentTransaction;
     private static String mYear;
     private static String mMonth;
     private static String mDay;
     private static String mWeek;
-
     private PointsGraphSeries<DataPoint> heartRateSeries;
     private PointsGraphSeries<DataPoint> stepsSeries;
     private PointsGraphSeries<DataPoint> calsSeries;
-
-
     private Timer mTimer;
+    LinearLayout linearLayoutHeartRates, linearLayoutSteps, linearLayoutCals;
+
+
+
 
 
     public HomeFragment() {
@@ -127,16 +150,19 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
         textDate = view.findViewById(R.id.textDate);
-        datePicker = view.findViewById(R.id.datePicker);
         switch1 = view.findViewById(R.id.switch1);
         switch2 = view.findViewById(R.id.switch2);
         switch3 = view.findViewById(R.id.switch3);
         switch4 = view.findViewById(R.id.switch4);
         switch5 = view.findViewById(R.id.switch5);
 
+
+
+        decoView_frame = view.findViewById(R.id.decoView_frame);
         map_frame = view.findViewById(R.id.map_frame);
+        calendar_frame = view.findViewById(R.id.calendar_frame);
+
         textLocation = view.findViewById(R.id.textLocation);
-        cTime = view.findViewById(R.id.cTime);
 
 
         currentHeartRate =  view.findViewById(R.id.currentHeartRate);
@@ -146,17 +172,15 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
         heartRateGraph = view.findViewById(R.id.heartRateGraph);
         stepsRateGraph = view.findViewById(R.id.stepsGraph);
         calsRateGraph = view.findViewById(R.id.calsGraph);
+        start_workout = view.findViewById(R.id.start_workout);
 
-
-        mYear = String.valueOf(currentTime.get(Calendar.YEAR)); // 获取当前年份
-        mMonth = String.valueOf(currentTime.get(Calendar.MONTH) + 1);// 获取当前月份
-        mDay = String.valueOf(currentTime.get(Calendar.DAY_OF_MONTH));// 获取当前月份的日期号码
-        mWeek = String.valueOf(currentTime.get(Calendar.DAY_OF_WEEK));
-
-        textDate.setText(StringData());
+        calendar = Calendar.getInstance();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY-MMMM-dd");
+        String currentDate = simpleDateFormat.format(calendar.getTime());
+        textDate.setText(currentDate);
 
         switch1.setChecked(false);
-        datePicker.setVisibility(View.GONE);
+        calendar_frame.setVisibility(View.GONE);
 
         switch2.setChecked(false);
         map_frame.setVisibility(View.GONE);
@@ -170,10 +194,26 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
         switch5.setChecked(false);
         calsRateGraph.setVisibility(View.GONE);
 
+        linearLayoutHeartRates = view.findViewById(R.id.linearLayoutHeartRates);
+        linearLayoutHeartRates.setVisibility(View.GONE);
+
+        linearLayoutSteps = view.findViewById(R.id.linearLayoutSteps);
+        linearLayoutSteps.setVisibility(View.GONE);
+
+        linearLayoutCals = view.findViewById(R.id.linearLayoutCals);
+        linearLayoutCals.setVisibility(View.GONE);
 
 
         fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.calendar_frame, new CalendarFragment());
+        fragmentTransaction.commit();
+
+        fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.map_frame, new MapFragment());
+        fragmentTransaction.commit();
+
+        fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.decoView_frame, new DecoviewFragment());
         fragmentTransaction.commit();
 
         textLocation.setClickable(true);
@@ -190,21 +230,10 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
                 if(switch1.isChecked()){
-                    datePicker.setVisibility(View.VISIBLE);
-
+                    calendar_frame.setVisibility(View.VISIBLE);
                 }
                 else if(!switch1.isChecked()) {
-                    datePicker.setVisibility(View.GONE);
-                    mYear = String.valueOf(datePicker.getYear());
-                    mMonth = String.valueOf(datePicker.getMonth()+1);
-                    mDay = String.valueOf(datePicker.getDayOfMonth());
-                    String day = mYear+"-"+mMonth+"-"+mDay;
-                    try {
-                        mWeek = String.valueOf(dayForWeek(day)+1);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    textDate.setText(StringData());
+                    calendar_frame.setVisibility(View.GONE);
                 }
             }
         };
@@ -299,10 +328,21 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
                 updateUI();
             }
         },delay,period);
+
         guessCurrentPlace();
+
+        start_workout.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), DistanceActivity.class);
+                String message = "start";
+                intent.putExtra("message", message);
+                startActivity(intent);
+            }
+        });
 
         return view;
     }
+
 
     private void guessCurrentPlace() {
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -498,9 +538,6 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
                     currentSteps.setText(String.valueOf(daily_steps));
                     currentCals.setText(String.format("%.0f", daily_cals));
 
-                    Calendar c = Calendar.getInstance();
-                    cTime.setText(c.get(Calendar.HOUR)+":"+c.get(Calendar.MINUTE)+":"+c.get(Calendar.SECOND));
-
                     heartRateSeries = new PointsGraphSeries<>(new DataPoint[] {
 
                             new DataPoint(0, heart_rate)
@@ -599,64 +636,4 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Googl
     public interface OnFragmentInteractionListener {
     }
 
-
-    public static String StringData(){
-
-        if("1".equals(mMonth)){
-            mMonth ="Jan";
-        }else if("2".equals(mMonth)){
-            mMonth ="Feb";
-        }else if("3".equals(mMonth)){
-            mMonth ="Mar";
-        }else if("4".equals(mMonth)){
-            mMonth ="Apr";
-        }else if("5".equals(mMonth)){
-            mMonth ="May";
-        }else if("6".equals(mMonth)){
-            mMonth ="Jun";
-        }else if("7".equals(mMonth)){
-            mMonth ="Jul";
-        }else if("8".equals(mMonth)){
-            mMonth ="Aug";
-        }else if("9".equals(mMonth)){
-            mMonth ="Sep";
-        }else if("10".equals(mMonth)){
-            mMonth ="Oct";
-        }else if("11".equals(mMonth)){
-            mMonth ="Nov";
-        }else if("12".equals(mMonth)){
-            mMonth ="Dec";
-        }
-
-        if("8".equals(mWeek)){
-            mWeek ="Sun";
-        }else if("2".equals(mWeek)){
-            mWeek ="Mon";
-        }else if("3".equals(mWeek)){
-            mWeek ="Tue";
-        }else if("4".equals(mWeek)){
-            mWeek ="Wed";
-        }else if("5".equals(mWeek)){
-            mWeek ="Thu";
-        }else if("6".equals(mWeek)){
-            mWeek ="Fri";
-        }else if("7".equals(mWeek)){
-            mWeek ="Sat";
-        }
-        return mYear + " " + mWeek + ", "+ mMonth + " " + mDay+" ";
-    }
-
-
-    public static int dayForWeek(String pTime) throws Exception {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        Calendar c = Calendar.getInstance();
-        c.setTime(format.parse(pTime));
-        int dayForWeek = 0;
-        if(c.get(Calendar.DAY_OF_WEEK) == 1){
-            dayForWeek = 7;
-        }else{
-            dayForWeek = c.get(Calendar.DAY_OF_WEEK) - 1;
-        }
-        return dayForWeek;
-    }
 }
