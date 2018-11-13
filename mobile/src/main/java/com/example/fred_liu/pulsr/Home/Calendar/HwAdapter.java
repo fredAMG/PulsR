@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,9 +32,11 @@ import java.util.Locale;
 
 class HwAdapter extends BaseAdapter {
     private Activity context;
+    private static final String TAG = "HwAdapter";
 
     private Calendar month;
     public GregorianCalendar pmonth;
+
     /**
      * calendar instance for previous month for getting complete view
      */
@@ -206,10 +209,13 @@ class HwAdapter extends BaseAdapter {
                         SimpleDateFormat mdformat = new SimpleDateFormat("yyyy-MM-dd");
                         String strDate = mdformat.format(calendar.getTime());
 
-                        if(date.equals(strDate)){
+                        if(date.compareTo(strDate) <= 0){
                             v.setBackgroundResource(R.drawable.rounded_calender_green);
                         }
-                        v.setBackgroundResource(R.drawable.rounded_calender);
+                        else {
+                            v.setBackgroundResource(R.drawable.rounded_calender);
+                        }
+                        Log.i(TAG,  "strDate" + date + strDate );
                         txt.setTextColor(Color.parseColor("#696969"));
                     }
 

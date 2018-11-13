@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements
         if (id == R.id.notification_switch) {
             if(getNotification_on_off() == 1){
                 notification_on_off = 0;
-                notification_switch.setIcon(R.drawable.ic_notifications_black_24dp);
+                notification_switch.setIcon(R.drawable.ic_notifications_24dp);
                 Toast.makeText(this, "Notification turned off!",
                         Toast.LENGTH_LONG).show();
             }

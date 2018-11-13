@@ -97,8 +97,13 @@ public class MapFragment extends Fragment implements GoogleApiClient.ConnectionC
 
                 LocationManager locationManager = (LocationManager) getContext().getSystemService(Context.LOCATION_SERVICE);
                 Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                double lat = location.getLatitude();
-                double lng = location.getLongitude();
+                double lat = 37.231831;
+                double lng = -80.418595;
+                if(location != null){
+                    lat = location.getLatitude();
+                    lng = location.getLongitude();
+                }
+
 
 
                 Geocoder geocoder;
