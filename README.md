@@ -1,4 +1,4 @@
 # PulsR
 Android Developemnt
 
-![](https://github.com/shuaiL8/PulsR/blob/master/images/11543352421_.pic_hd.jpg | width=50)
+<img src="https://github.com/shuaiL8/PulsR/blob/master/images/11543352421_.pic_hd.jpg" width="100">
