@@ -175,7 +175,7 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Conne
         start_workout = view.findViewById(R.id.start_workout);
 
         calendar = Calendar.getInstance();
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY-MMMM-dd");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY,MMMM,dd");
         String currentDate = simpleDateFormat.format(calendar.getTime());
         textDate.setText(currentDate);
 

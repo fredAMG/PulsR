@@ -11,6 +11,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.fred_liu.pulsr.Home.DecoviewDialogFragment;
+import com.example.fred_liu.pulsr.Me.ResetpasswordFragment;
 import com.example.fred_liu.pulsr.R;
 
 import java.text.SimpleDateFormat;
@@ -25,6 +27,10 @@ public class CalendarFragment extends Fragment{
     public GregorianCalendar cal_month, cal_month_copy;
     private HwAdapter hwAdapter;
     private TextView tv_month;
+    public static final String TAG = CalendarFragment.class.getSimpleName();
+
+    private String demo = "2018-11-01";
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -45,34 +51,18 @@ public class CalendarFragment extends Fragment{
         String incrementedDate = addOneDay(strDate);
         String incrementedDate2 = addOneDay(incrementedDate);
 
-        String demo = "2018-11-01";
-
-
-        HomeCollection.date_collection_arr.add(new HomeCollection(demo, "30 mins", "3.8 miles", "400 cals"));
-
-        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(demo), "30 mins", "3.8 miles", "400 cals"));
-
-        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(demo)), "30 mins", "3.8 miles", "400 cals"));
-
-        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(demo))), "30 mins", "3.8 miles", "400 cals"));
-
-        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(demo)))), "30 mins", "3.8 miles", "400 cals"));
-
-        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(demo))))), "30 mins", "3.8 miles", "400 cals"));
-
-        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(demo)))))), "30 mins", "3.8 miles", "400 cals"));
-
-        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(demo)))))), "30 mins", "3.8 miles", "400 cals"));
-
-        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(demo)))))), "30 mins", "3.8 miles", "400 cals"));
-
-        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(demo))))))), "30 mins", "3.8 miles", "400 cals"));
-
-        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(demo)))))))), "30 mins", "3.8 miles", "400 cals"));
-
-        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(demo))))))))), "30 mins", "3.8 miles", "400 cals"));
-
-        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(demo))))))))), "30 mins", "3.8 miles", "400 cals"));
+        HomeCollection.date_collection_arr.add(new HomeCollection(demo, "18 mins", "1.5 miles", "200 cals"));
+        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(demo), "18 mins", "1.5  miles", "200 cals"));
+        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(demo)), "18 mins", "1.5  miles", "200 cals"));
+        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(demo))), "20 mins", "1.75 miles", "440 cals"));
+//        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(demo)))), "20 mins", "1.75 miles", "440 cals"));
+        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(demo))))), "20 mins", "1.75 miles", "440 cals"));
+        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(demo)))))), "20 mins", "1.75 miles", "440 cals"));
+        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(demo))))))), "22 mins", "2.0 miles", "500 cals"));
+        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(demo)))))))), "22 mins", "2.0 miles", "500 cals"));
+        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(demo))))))))), "22 mins", "2.0 miles", "500 cals"));
+        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(demo)))))))))), "22 mins", "2.0 miles", "500 cals"));
+        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(demo))))))))))), "22 mins", "2.0 miles", "500 cals"));
 
         HomeCollection.date_collection_arr.add(new HomeCollection(strDate, "30 mins", "3.8 miles", "400 cals"));
 //        HomeCollection.date_collection_arr.add(new HomeCollection(incrementedDate, "33 mins", "4.0 miles", "410 cals"));
@@ -157,15 +147,10 @@ public class CalendarFragment extends Fragment{
         tv_month.setText(android.text.format.DateFormat.format("MMMM yyyy", cal_month));
     }
 
-
-
     public static String addOneDay(String date) {
         return LocalDate
                 .parse(date)
                 .plusDays(3)
                 .toString();
     }
-
-
-
 }

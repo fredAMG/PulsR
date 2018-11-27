@@ -18,6 +18,7 @@
         <TextView
             android:id="@+id/dis_timer"
             android:text="00:00"
+            android:textColor="#FFFF8800"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
@@ -29,6 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/dis_distance"
+            android:textColor="#FF6699FF"
             android:text="0 km"
             android:textSize="30dp"
             android:layout_centerHorizontal="true"
@@ -38,6 +40,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="#FFFF4444"
             android:id="@+id/dis_cals"
             android:text="0 cals"
             android:textSize="25dp"

@@ -4,17 +4,21 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.fred_liu.pulsr.Home.DecoviewDialogFragment;
 import com.example.fred_liu.pulsr.R;
 
 import org.json.JSONArray;
@@ -249,6 +253,27 @@ class HwAdapter extends BaseAdapter {
             listTeachers = (ListView) dialogs.findViewById(R.id.list_teachers);
             ImageView imgCross = (ImageView) dialogs.findViewById(R.id.img_cross);
             listTeachers.setAdapter(new DialogAdaptorStudent(context, getMatchList(jbarrays + "")));
+            listTeachers.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+
+                    if (position == 0) {
+                        Bundle args = new Bundle();
+                        args.putString("date", date);
+                        for (int j=0; j<len; j++){
+                            if (HomeCollection.date_collection_arr.get(j).date.equals(date)){
+                                args.putString("time", HomeCollection.date_collection_arr.get(j).dur);
+                                args.putString("distance", HomeCollection.date_collection_arr.get(j).dist);
+                                args.putString("cal", HomeCollection.date_collection_arr.get(j).cal);
+                            }
+                        }
+
+                        DecoviewDialogFragment decoviewDialogFragment = new DecoviewDialogFragment();
+                        decoviewDialogFragment.setArguments(args);
+                        decoviewDialogFragment.show(((AppCompatActivity)context).getSupportFragmentManager(), DecoviewDialogFragment.TAG);
+                    }
+                }
+            });
             imgCross.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

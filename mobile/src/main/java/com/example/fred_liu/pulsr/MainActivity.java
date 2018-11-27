@@ -141,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements
 
             bottomNavigationView.setVisibility(View.GONE);
             fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.add(R.id.content, new LoginFragment());
+            fragmentTransaction.add(R.id.content, new HomeFragment());
             fragmentTransaction.commit();
         }
     }

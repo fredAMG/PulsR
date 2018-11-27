@@ -2,20 +2,24 @@ package com.example.fred_liu.pulsr.Home;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnticipateInterpolator;
 import android.widget.TextView;
 
+import com.example.fred_liu.pulsr.Me.ResetpasswordFragment;
 import com.example.fred_liu.pulsr.R;
 import com.hookedonplay.decoviewlib.DecoView;
 import com.hookedonplay.decoviewlib.charts.DecoDrawEffect;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
 
-public class DecoviewFragment extends Fragment{
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
+public class DecoviewDialogFragment extends DialogFragment{
 
     private DecoView mDecoView;
     private int mBackIndex;
@@ -28,16 +32,20 @@ public class DecoviewFragment extends Fragment{
     TextView textActivity1;
     TextView textActivity2;
     TextView textActivity3;
+    TextView textDate;
+
     float percentFilled = 0;
     float remainingMins = 0;
     float remainingKm = 0;
     float remainingCals = 0;
 
-    float time = 30;
-    float distance = 3.8f;
-    float cals = 400;
+    String date = "2018";
+    float time = 0;
+    float distance = 0;
+    float cals = 0;
+    public static final String TAG = DecoviewDialogFragment.class.getSimpleName();
 
-    public DecoviewFragment() {
+    public DecoviewDialogFragment() {
         // Required empty public constructor
     }
 
@@ -45,7 +53,7 @@ public class DecoviewFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_decoview, container, false);
+        View view = inflater.inflate(R.layout.fragment_decoview_dialog, container, false);
 
         mDecoView = view.findViewById(R.id.dynamicArcView);
         textPercentage = view.findViewById(R.id.textPercentage);
@@ -53,18 +61,39 @@ public class DecoviewFragment extends Fragment{
         textActivity1 = view.findViewById(R.id.textActivity1);
         textActivity2 = view.findViewById(R.id.textActivity2);
         textActivity3 = view.findViewById(R.id.textActivity3);
+        textDate = view.findViewById(R.id.textDate);
 
         if(getArguments() != null) {
-            String strTime = getArguments().getString("time");
-            time = Float.parseFloat(strTime);
+            String strDate = getArguments().getString("date");
+            date = strDate;
 
-            String strDistance = getArguments().getString("distance");
-            distance = Float.parseFloat(strDistance);
+            Calendar calendar = Calendar.getInstance();
+            SimpleDateFormat mdformat = new SimpleDateFormat("yyyy-MM-dd");
+            String strCurrentDate = mdformat.format(calendar.getTime());
 
-            String strCals = getArguments().getString("cals");
-            cals = Float.parseFloat(strCals);
+            if(date.compareTo(strCurrentDate) <= 0){
+                String strTime = getArguments().getString("time");
+                time = Float.valueOf(strTime.replaceAll("mins", ""));
+
+                String strDistance = getArguments().getString("distance");
+                distance = Float.valueOf(strDistance.replaceAll("miles", ""));
+
+                String strCals = getArguments().getString("cal");
+                cals = Float.valueOf(strCals.replaceAll("cals", ""));
+            }
+            else {
+                time = 0;
+
+                distance = 0;
+
+                cals = 0;
+            }
+
+
         }
 
+
+        textDate.setText(date);
 
 
         // Create required data series on the DecoView
@@ -194,92 +223,18 @@ public class DecoviewFragment extends Fragment{
                 .setDelay(100)
                 .build());
 
-        mDecoView.addEvent(new DecoEvent.Builder(DecoDrawEffect.EffectType.EFFECT_SPIRAL_OUT)
-                .setIndex(mSeries3Index)
-                .setDuration(2000)
-                .setDelay(1250)
-                .build());
-
-        mDecoView.addEvent(new DecoEvent.Builder(distance)
-                .setIndex(mSeries3Index)
-                .setDelay(3250)
-                .build());
-
-        mDecoView.addEvent(new DecoEvent.Builder(DecoDrawEffect.EffectType.EFFECT_SPIRAL_OUT)
-                .setIndex(mSeries2Index)
-                .setDuration(1000)
-                .setEffectRotations(1)
-                .setDelay(7000)
+        mDecoView.addEvent(new DecoEvent.Builder(time)
+                .setIndex(mSeries1Index)
+                .setDelay(110)
                 .build());
 
         mDecoView.addEvent(new DecoEvent.Builder(cals)
                 .setIndex(mSeries2Index)
-                .setDelay(8500)
+                .setDelay(120)
                 .build());
 
-        mDecoView.addEvent(new DecoEvent.Builder(DecoDrawEffect.EffectType.EFFECT_SPIRAL_OUT)
-                .setIndex(mSeries1Index)
-                .setDuration(1000)
-                .setEffectRotations(1)
-                .setDelay(12500)
-                .build());
+        mDecoView.addEvent(new DecoEvent.Builder(distance).setIndex(mSeries3Index).setDelay(130).build());
 
-        mDecoView.addEvent(new DecoEvent.Builder(time).setIndex(mSeries1Index).setDelay(14000).build());
-
-        mDecoView.addEvent(new DecoEvent.Builder(0).setIndex(mSeries1Index).setDelay(20000).build());
-
-        mDecoView.addEvent(new DecoEvent.Builder(0).setIndex(mSeries2Index).setDelay(20000).build());
-
-        mDecoView.addEvent(new DecoEvent.Builder(0)
-                .setIndex(mSeries3Index)
-                .setDelay(20000)
-                .setListener(new DecoEvent.ExecuteEventListener() {
-                    @Override
-                    public void onEventStart(DecoEvent decoEvent) {
-
-                    }
-
-                    @Override
-                    public void onEventEnd(DecoEvent decoEvent) {
-                        resetText();
-                    }
-                })
-                .build());
-
-        mDecoView.addEvent(new DecoEvent.Builder(DecoDrawEffect.EffectType.EFFECT_SPIRAL_EXPLODE)
-                .setIndex(mSeries1Index)
-                .setDelay(24000)
-                .setDuration(3000)
-                .setDisplayText("Nice Job!")
-                .setListener(new DecoEvent.ExecuteEventListener() {
-                    @Override
-                    public void onEventStart(DecoEvent decoEvent) {
-
-                    }
-
-                    @Override
-                    public void onEventEnd(DecoEvent decoEvent) {
-                        mDecoView.addEvent(new DecoEvent.Builder(mSeriesMax)
-                                .setIndex(mBackIndex)
-                                .setDuration(3000)
-                                .setDelay(100)
-                                .build());
-
-                        mDecoView.addEvent(new DecoEvent.Builder(time)
-                                .setIndex(mSeries1Index)
-                                .setDelay(110)
-                                .build());
-
-                        mDecoView.addEvent(new DecoEvent.Builder(cals)
-                                .setIndex(mSeries2Index)
-                                .setDelay(120)
-                                .build());
-
-                        mDecoView.addEvent(new DecoEvent.Builder(distance).setIndex(mSeries3Index).setDelay(130).build());
-
-                    }
-                })
-                .build());
     }
 
     private void resetText() {
