@@ -111,7 +111,7 @@ public class DecoviewFragment extends Fragment{
     }
 
     private void createDataSeries2() {
-        SeriesItem seriesItem = new SeriesItem.Builder(Color.parseColor("#FFFF4444"))
+        SeriesItem seriesItem = new SeriesItem.Builder(Color.parseColor("#78BE20"))
                 .setRange(0, 600, 0)
                 .setInitialVisibility(false)
                 .build();

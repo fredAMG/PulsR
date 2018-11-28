@@ -41,6 +41,7 @@ import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.PointsGraphSeries;
 
 
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -242,7 +243,7 @@ public class DistanceActivity extends AppCompatActivity implements OnDataPointLi
     }
 
     private void createDataSeries2() {
-        SeriesItem seriesItem = new SeriesItem.Builder(Color.parseColor("#FFFF4444"))
+        SeriesItem seriesItem = new SeriesItem.Builder(Color.parseColor("#78BE20"))
                 .setRange(0, 1500, 0)
                 .setInitialVisibility(false)
                 .build();
@@ -293,6 +294,10 @@ public class DistanceActivity extends AppCompatActivity implements OnDataPointLi
                 .setDelay(1250)
                 .setDuration(60000)
                 .build());
+//        final Random rand = new Random();
+//        int newPosition = rand.nextInt((int)mSeriesMax);
+//        distance_DecoView.addEvent(new DecoEvent.Builder(newPosition).setIndex(mSeries1Index).setDuration(1000).build());
+
     }
 
     private void pauseUI(){

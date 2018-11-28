@@ -6,6 +6,11 @@
 
     <color name="colorHeart">#8B2323</color>
     <color name="colorSteps">#104E8B</color>
-    <color name="colorCals">#2E8B57</color>
     <color name="colorMap">#a4c639</color>
+
+    <color name="colorTime">#FFFF8800</color>
+    <color name="colorCals">#78BE20</color>
+    <color name="colorDis">#FF6699FF</color>
+
+
 </resources>
