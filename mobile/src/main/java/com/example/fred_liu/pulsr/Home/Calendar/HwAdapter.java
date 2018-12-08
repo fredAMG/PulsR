@@ -214,10 +214,18 @@ class HwAdapter extends BaseAdapter {
                         String strDate = mdformat.format(calendar.getTime());
 
                         if(date.compareTo(strDate) <= 0){
-                            v.setBackgroundResource(R.drawable.rounded_calender_green);
+                            if(date.compareTo("2018-11-30") == 0){
+                                v.setBackgroundResource(R.drawable.rounded_calender);
+                            }
+                            else if(date.compareTo("2018-11-21") == 0){
+                                v.setBackgroundResource(R.drawable.rounded_calender);
+                            }
+                            else {
+                                v.setBackgroundResource(R.drawable.rounded_calender_green);
+                            }
                         }
                         else {
-                            v.setBackgroundResource(R.drawable.rounded_calender);
+                            v.setBackgroundResource(R.drawable.rounded_calender_orange);
                         }
                         Log.i(TAG,  "strDate" + date + strDate );
                         txt.setTextColor(Color.parseColor("#696969"));

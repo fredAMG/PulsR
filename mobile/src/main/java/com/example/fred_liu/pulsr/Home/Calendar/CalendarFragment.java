@@ -29,7 +29,7 @@ public class CalendarFragment extends Fragment{
     private TextView tv_month;
     public static final String TAG = CalendarFragment.class.getSimpleName();
 
-    private String demo = "2018-11-01";
+    private String demo = "2018-11-15";
 
 
     @Override
@@ -53,10 +53,10 @@ public class CalendarFragment extends Fragment{
 
         HomeCollection.date_collection_arr.add(new HomeCollection(demo, "18 mins", "1.5 miles", "200 cals"));
         HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(demo), "18 mins", "1.5  miles", "200 cals"));
-        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(demo)), "18 mins", "1.5  miles", "200 cals"));
+        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(demo)), "0 mins", "0  miles", "0 cals"));
         HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(demo))), "20 mins", "1.75 miles", "440 cals"));
 //        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(demo)))), "20 mins", "1.75 miles", "440 cals"));
-        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(demo))))), "20 mins", "1.75 miles", "440 cals"));
+        HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(demo))))), "0 mins", "0 miles", "0 cals"));
         HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(demo)))))), "20 mins", "1.75 miles", "440 cals"));
         HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(demo))))))), "22 mins", "2.0 miles", "500 cals"));
         HomeCollection.date_collection_arr.add(new HomeCollection(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(addOneDay(demo)))))))), "22 mins", "2.0 miles", "500 cals"));

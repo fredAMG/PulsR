@@ -28,12 +28,29 @@
             android:maxWidth="200dp"
             android:textAppearance="?android:attr/textAppearanceSmall"/>
 
-        <com.hookedonplay.decoviewlib.DecoView
-            xmlns:custom="http://schemas.android.com/apk/res-auto"
-            custom:dv_lineWidth="26dp"
+        <com.hookedonplay.decoviewlib.DecoView xmlns:custom="http://schemas.android.com/apk/res-auto"
             android:id="@+id/dynamicArcView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" >
+            android:layout_height="match_parent"
+            custom:dv_lineWidth="22dp">
+
+        </com.hookedonplay.decoviewlib.DecoView>
+
+        <com.hookedonplay.decoviewlib.DecoView xmlns:custom="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/dynamicArcView2"
+            android:layout_width="231dp"
+            android:layout_height="278dp"
+            android:layout_centerInParent="true"
+            custom:dv_lineWidth="22dp">
+
+        </com.hookedonplay.decoviewlib.DecoView>
+
+        <com.hookedonplay.decoviewlib.DecoView xmlns:custom="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/dynamicArcView3"
+            android:layout_width="184dp"
+            android:layout_height="247dp"
+            android:layout_centerInParent="true"
+            custom:dv_lineWidth="22dp">
 
         </com.hookedonplay.decoviewlib.DecoView>
     </RelativeLayout>
@@ -43,11 +60,11 @@
         android:id="@+id/imageActivity3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_above="@+id/demo2"
         android:layout_centerHorizontal="true"
         android:background="@drawable/circle_activity3"
         android:padding="12dp"
-        android:src="@drawable/ic_directions_run_black_24dp"/>
+        android:src="@drawable/ic_directions_run_black_24dp" />
 
     <ImageView
         android:id="@+id/imageActivity2"
@@ -64,12 +81,10 @@
         android:id="@+id/imageActivity1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
+        android:layout_alignTop="@+id/imageActivity3"
         android:background="@drawable/circle_activity1"
         android:padding="12dp"
-        android:src="@drawable/ic_timer"/>
+        android:src="@drawable/ic_timer" />
 
     <TextView
         android:id="@+id/textActivity3"
@@ -104,4 +119,30 @@
         android:gravity="center_horizontal"
         android:paddingRight="4dp"
         android:textAppearance="?android:attr/textAppearanceMedium"/>
+
+    <Button
+        android:id="@+id/demo1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imageActivity3"
+        android:padding="12dp"
+        android:text="DEMO 1" />
+
+    <Button
+        android:id="@+id/demo2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="DEMO 2" />
+
+    <Button
+        android:id="@+id/clear"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/demo2"
+        android:padding="12dp"
+        android:text="clear" />
 </RelativeLayout>

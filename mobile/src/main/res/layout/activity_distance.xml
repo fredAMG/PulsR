@@ -16,15 +16,25 @@
         android:layout_gravity="center">
 
         <TextView
-            android:id="@+id/dis_timer"
-            android:text="00:00"
-            android:textColor="@color/colorTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/colorCals"
+            android:id="@+id/dis_steps"
+            android:text="0 steps"
+            android:textSize="25dp"
             android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
+            android:layout_above="@+id/dis_timer"
+            android:gravity="center"/>
+
+        <TextView
+            android:id="@+id/dis_timer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="00:00"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:textSize="40sp"/>
+            android:textColor="@color/colorTime"
+            android:textSize="30sp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -32,7 +42,7 @@
             android:id="@+id/dis_distance"
             android:textColor="#FF6699FF"
             android:text="0 km"
-            android:textSize="30dp"
+            android:textSize="25dp"
             android:layout_centerHorizontal="true"
             android:layout_below="@+id/dis_timer"
             android:gravity="center"/>
@@ -43,7 +53,7 @@
             android:textColor="@color/colorCals"
             android:id="@+id/dis_cals"
             android:text="0 cals"
-            android:textSize="25dp"
+            android:textSize="20dp"
             android:layout_centerHorizontal="true"
             android:layout_below="@+id/dis_distance"
             android:gravity="center"/>
@@ -51,10 +61,28 @@
 
         <com.hookedonplay.decoviewlib.DecoView
             xmlns:custom="http://schemas.android.com/apk/res-auto"
-            custom:dv_lineWidth="26dp"
+            custom:dv_lineWidth="22dp"
             android:id="@+id/distance_DecoView"
             android:layout_width="wrap_content"
             android:layout_height="match_parent" >
+
+        </com.hookedonplay.decoviewlib.DecoView>
+
+        <com.hookedonplay.decoviewlib.DecoView xmlns:custom="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/distance_DecoView2"
+            android:layout_width="254dp"
+            android:layout_height="448dp"
+            android:layout_centerInParent="true"
+            custom:dv_lineWidth="22dp">
+
+        </com.hookedonplay.decoviewlib.DecoView>
+
+        <com.hookedonplay.decoviewlib.DecoView xmlns:custom="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/distance_DecoView3"
+            android:layout_width="207dp"
+            android:layout_height="414dp"
+            android:layout_centerInParent="true"
+            custom:dv_lineWidth="22dp">
 
         </com.hookedonplay.decoviewlib.DecoView>
     </RelativeLayout>
@@ -83,5 +111,13 @@
         android:layout_gravity="bottom|start"
         android:layout_margin="@dimen/fab_bigger_margin"
         app:srcCompat="@drawable/ic_play_arrow" />
+
+    <Button
+        android:id="@+id/demo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center"
+        android:layout_margin="10dp"
+        android:text="DEMO" />
 
 </FrameLayout>

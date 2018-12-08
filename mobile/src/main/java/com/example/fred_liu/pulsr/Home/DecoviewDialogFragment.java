@@ -21,8 +21,8 @@ import java.util.Calendar;
 
 public class DecoviewDialogFragment extends DialogFragment{
 
-    private DecoView mDecoView;
-    private int mBackIndex;
+    private DecoView mDecoView, mDecoView2, mDecoView3;
+    private int mBackIndex, mBackIndex2, mBackIndex3;
     private int mSeries1Index;
     private int mSeries2Index;
     private int mSeries3Index;
@@ -56,6 +56,9 @@ public class DecoviewDialogFragment extends DialogFragment{
         View view = inflater.inflate(R.layout.fragment_decoview_dialog, container, false);
 
         mDecoView = view.findViewById(R.id.dynamicArcView);
+        mDecoView2 = view.findViewById(R.id.dynamicArcView2);
+        mDecoView3 = view.findViewById(R.id.dynamicArcView3);
+
         textPercentage = view.findViewById(R.id.textPercentage);
         textRemaining = view.findViewById(R.id.textRemaining);
         textActivity1 = view.findViewById(R.id.textActivity1);
@@ -116,6 +119,20 @@ public class DecoviewDialogFragment extends DialogFragment{
                 .build();
 
         mBackIndex = mDecoView.addSeries(seriesItem);
+
+        SeriesItem seriesItem2 = new SeriesItem.Builder(Color.parseColor("#FFE2E2E2"))
+                .setRange(0, mSeriesMax, 0)
+                .setInitialVisibility(true)
+                .build();
+
+        mBackIndex2 = mDecoView2.addSeries(seriesItem2);
+
+        SeriesItem seriesItem3 = new SeriesItem.Builder(Color.parseColor("#FFE2E2E2"))
+                .setRange(0, mSeriesMax, 0)
+                .setInitialVisibility(true)
+                .build();
+
+        mBackIndex3 = mDecoView3.addSeries(seriesItem3);
     }
 
     private void createDataSeries1() {
@@ -158,7 +175,7 @@ public class DecoviewDialogFragment extends DialogFragment{
             }
         });
 
-        mSeries2Index = mDecoView.addSeries(seriesItem);
+        mSeries2Index = mDecoView2.addSeries(seriesItem);
     }
 
     private void createDataSeries3() {
@@ -210,7 +227,7 @@ public class DecoviewDialogFragment extends DialogFragment{
             }
         });
 
-        mSeries3Index = mDecoView.addSeries(seriesItem);
+        mSeries3Index = mDecoView3.addSeries(seriesItem);
     }
 
 
@@ -222,29 +239,31 @@ public class DecoviewDialogFragment extends DialogFragment{
                 .setDuration(3000)
                 .setDelay(100)
                 .build());
+        mDecoView2.addEvent(new DecoEvent.Builder(mSeriesMax)
+                .setIndex(mBackIndex2)
+                .setDuration(3000)
+                .setDelay(100)
+                .build());
+        mDecoView3.addEvent(new DecoEvent.Builder(mSeriesMax)
+                .setIndex(mBackIndex3)
+                .setDuration(3000)
+                .setDelay(100)
+                .build());
 
         mDecoView.addEvent(new DecoEvent.Builder(time)
                 .setIndex(mSeries1Index)
                 .setDelay(110)
                 .build());
 
-        mDecoView.addEvent(new DecoEvent.Builder(cals)
+        mDecoView2.addEvent(new DecoEvent.Builder(cals)
                 .setIndex(mSeries2Index)
                 .setDelay(120)
                 .build());
 
-        mDecoView.addEvent(new DecoEvent.Builder(distance).setIndex(mSeries3Index).setDelay(130).build());
+        mDecoView3.addEvent(new DecoEvent.Builder(distance)
+                .setIndex(mSeries3Index)
+                .setDelay(130)
+                .build());
 
-    }
-
-    private void resetText() {
-        textActivity1.setText("");
-        textActivity2.setText("");
-        textActivity3.setText("");
-        textPercentage.setText("");
-        textRemaining.setText("");
-    }
-
-    public interface OnFragmentInteractionListener {
     }
 }

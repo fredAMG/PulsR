@@ -13,6 +13,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.fred_liu.pulsr.MainActivity;
@@ -64,13 +65,14 @@ public class DistanceActivity extends AppCompatActivity implements OnDataPointLi
     private long init_steps;
 
 
-    private DecoView distance_DecoView;
+    private DecoView distance_DecoView, distance_DecoView2, distance_DecoView3;
     private final float mSeriesMax = 5f;
-    private int mBackIndex;
+    private int mBackIndex, mBackIndex2, mBackIndex3;
     private int mSeries1Index;
     private int mSeries2Index;
     private int mSeries3Index;
-    private TextView dis_timer, dis_distance, dis_cals;
+    private TextView dis_timer, dis_distance, dis_cals, dis_steps;
+    private Button demo;
     FloatingActionButton dis_stop, dis_pause, dis_start;
 
     private long startTime=0L, timeInMillsecond=0L,timeSwapBuff=0L,updateTime=0L;
@@ -92,9 +94,15 @@ public class DistanceActivity extends AppCompatActivity implements OnDataPointLi
         setContentView(R.layout.activity_distance);
 
         distance_DecoView = findViewById(R.id.distance_DecoView);
+        distance_DecoView2 = findViewById(R.id.distance_DecoView2);
+        distance_DecoView3 = findViewById(R.id.distance_DecoView3);
+
         dis_timer = findViewById(R.id.dis_timer);
         dis_distance = findViewById(R.id.dis_distance);
         dis_cals = findViewById(R.id.dis_cals);
+        dis_steps = findViewById(R.id.dis_steps);
+        dis_steps.setVisibility(View.GONE);
+        demo = findViewById(R.id.demo);
         dis_start = findViewById(R.id.dis_start);
         dis_pause = findViewById(R.id.dis_pause);
         dis_stop = findViewById(R.id.dis_stop);
@@ -133,6 +141,10 @@ public class DistanceActivity extends AppCompatActivity implements OnDataPointLi
                 updateUI();
             }
         };
+
+        dis_start.setEnabled(true);
+        dis_pause.setEnabled(false);
+        dis_stop.setEnabled(false);
 
         dis_start.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -174,13 +186,23 @@ public class DistanceActivity extends AppCompatActivity implements OnDataPointLi
                 mins = 0;
                 hours = 0;
 
-
+                dis_steps.setText("0 steps");
                 dis_timer.setText("00:00");
                 dis_distance.setText("0 km");
                 dis_cals.setText("0 cals");
                 stopUI();
                 onStop();
                 updateButtons();
+                finish();
+                overridePendingTransition( 0, 0);
+                startActivity(getIntent());
+                overridePendingTransition( 0, 0);
+            }
+        });
+
+        demo.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                dis_steps.setVisibility(View.VISIBLE);
             }
         });
 
@@ -231,6 +253,20 @@ public class DistanceActivity extends AppCompatActivity implements OnDataPointLi
                 .build();
 
         mBackIndex = distance_DecoView.addSeries(seriesItem);
+
+        SeriesItem seriesItem2 = new SeriesItem.Builder(Color.parseColor("#FFE2E2E2"))
+                .setRange(0, mSeriesMax, 0)
+                .setInitialVisibility(true)
+                .build();
+
+        mBackIndex2 = distance_DecoView2.addSeries(seriesItem2);
+
+        SeriesItem seriesItem3 = new SeriesItem.Builder(Color.parseColor("#FFE2E2E2"))
+                .setRange(0, mSeriesMax, 0)
+                .setInitialVisibility(true)
+                .build();
+
+        mBackIndex3 = distance_DecoView3.addSeries(seriesItem3);
     }
 
     private void createDataSeries1() {
@@ -244,11 +280,11 @@ public class DistanceActivity extends AppCompatActivity implements OnDataPointLi
 
     private void createDataSeries2() {
         SeriesItem seriesItem = new SeriesItem.Builder(Color.parseColor("#78BE20"))
-                .setRange(0, 1500, 0)
+                .setRange(0, 200, 0)
                 .setInitialVisibility(false)
                 .build();
 
-        mSeries2Index = distance_DecoView.addSeries(seriesItem);
+        mSeries2Index = distance_DecoView2.addSeries(seriesItem);
     }
 
     private void createDataSeries3() {
@@ -257,7 +293,7 @@ public class DistanceActivity extends AppCompatActivity implements OnDataPointLi
                 .setInitialVisibility(false)
                 .build();
 
-        mSeries3Index = distance_DecoView.addSeries(seriesItem);
+        mSeries3Index = distance_DecoView3.addSeries(seriesItem);
     }
 
     private void createEvents() {
@@ -268,6 +304,16 @@ public class DistanceActivity extends AppCompatActivity implements OnDataPointLi
                 .setDuration(3000)
                 .setDelay(100)
                 .build());
+        distance_DecoView2.addEvent(new DecoEvent.Builder(mSeriesMax)
+                .setIndex(mBackIndex2)
+                .setDuration(3000)
+                .setDelay(100)
+                .build());
+        distance_DecoView3.addEvent(new DecoEvent.Builder(mSeriesMax)
+                .setIndex(mBackIndex3)
+                .setDuration(3000)
+                .setDelay(100)
+                .build());
 
         distance_DecoView.addEvent(new DecoEvent.Builder(DecoDrawEffect.EffectType.EFFECT_SPIRAL_OUT)
                 .setIndex(mSeries1Index)
@@ -275,39 +321,41 @@ public class DistanceActivity extends AppCompatActivity implements OnDataPointLi
                 .setDelay(1250)
                 .build());
 
-        distance_DecoView.addEvent(new DecoEvent.Builder(DecoDrawEffect.EffectType.EFFECT_SPIRAL_OUT)
-                .setIndex(mSeries3Index)
-                .setDuration(2000)
-                .setDelay(1350)
-                .build());
-
-        distance_DecoView.addEvent(new DecoEvent.Builder(DecoDrawEffect.EffectType.EFFECT_SPIRAL_OUT)
+        distance_DecoView2.addEvent(new DecoEvent.Builder(DecoDrawEffect.EffectType.EFFECT_SPIRAL_OUT)
                 .setIndex(mSeries2Index)
                 .setDuration(2000)
-                .setDelay(1450)
+                .setDelay(1250)
+                .build());
+
+        distance_DecoView3.addEvent(new DecoEvent.Builder(DecoDrawEffect.EffectType.EFFECT_SPIRAL_OUT)
+                .setIndex(mSeries3Index)
+                .setDuration(2000)
+                .setDelay(1250)
                 .build());
     }
 
     private void startUI() {
-        distance_DecoView.addEvent(new DecoEvent.Builder(60)
+        distance_DecoView.addEvent(new DecoEvent.Builder(secs)
                 .setIndex(mSeries1Index)
-                .setDelay(1250)
-                .setDuration(60000)
+                .setDelay(0)
+                .setDuration(0)
                 .build());
-//        final Random rand = new Random();
-//        int newPosition = rand.nextInt((int)mSeriesMax);
-//        distance_DecoView.addEvent(new DecoEvent.Builder(newPosition).setIndex(mSeries1Index).setDuration(1000).build());
 
     }
 
     private void pauseUI(){
         distance_DecoView.clearAnimation();
+        distance_DecoView2.clearAnimation();
+        distance_DecoView3.clearAnimation();
 
 
     }
 
     private void stopUI(){
         distance_DecoView.deleteAll();
+        distance_DecoView2.deleteAll();
+        distance_DecoView3.deleteAll();
+
         createBackSeries();
         createDataSeries1();
         createDataSeries3();
@@ -530,9 +578,24 @@ public class DistanceActivity extends AppCompatActivity implements OnDataPointLi
             this.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    dis_distance.setText(String.format("%.2f km", current_dis - init_dis));
+                    distance_DecoView.addEvent(new DecoEvent.Builder(secs)
+                            .setIndex(mSeries1Index)
+                            .setDelay(0)
+                            .setDuration(0)
+                            .build());
 
-//                    dis_distance.setText(String.format("%d steps", current_steps - init_steps));
+                    distance_DecoView2.addEvent(new DecoEvent.Builder(current_steps - init_steps)
+                            .setIndex(mSeries2Index)
+                            .setDelay(0)
+                            .setDuration(0)
+                            .build());
+
+//                    dis_distance.setText(String.format("%.2f km", current_dis - init_dis));
+
+                    dis_distance.setText(String.format("%.2f km", 0));
+
+
+                    dis_steps.setText(String.format("%d steps", current_steps - init_steps));
 
                     dis_cals.setText(String.format("%.0f cals", current_cals - init_cals));
                 }

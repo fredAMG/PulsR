@@ -49,7 +49,7 @@ public class GCMService extends GcmListenerService {
                 .addAction(R.drawable.ic_do_not_disturb_black_24dp, "Dismiss",
                         dismissIntent)
                 .setSmallIcon(R.drawable.ic_message_black_24dp)
-                .setContentTitle("PulsR Message Received")
+                .setContentTitle("PulsR")
                 .setContentText(message)
                 .setAutoCancel(true)
                 .setSound(defaultSoundUri)

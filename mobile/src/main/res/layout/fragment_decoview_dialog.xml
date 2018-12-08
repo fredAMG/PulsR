@@ -38,12 +38,29 @@
             android:maxWidth="200dp"
             android:textAppearance="?android:attr/textAppearanceSmall"/>
 
-        <com.hookedonplay.decoviewlib.DecoView
-            xmlns:custom="http://schemas.android.com/apk/res-auto"
-            custom:dv_lineWidth="26dp"
+        <com.hookedonplay.decoviewlib.DecoView xmlns:custom="http://schemas.android.com/apk/res-auto"
             android:id="@+id/dynamicArcView"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" >
+            android:layout_height="match_parent"
+            custom:dv_lineWidth="22dp">
+
+        </com.hookedonplay.decoviewlib.DecoView>
+
+        <com.hookedonplay.decoviewlib.DecoView xmlns:custom="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/dynamicArcView2"
+            android:layout_width="209dp"
+            android:layout_height="260dp"
+            android:layout_centerInParent="true"
+            custom:dv_lineWidth="22dp">
+
+        </com.hookedonplay.decoviewlib.DecoView>
+
+        <com.hookedonplay.decoviewlib.DecoView xmlns:custom="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/dynamicArcView3"
+            android:layout_width="163dp"
+            android:layout_height="258dp"
+            android:layout_centerInParent="true"
+            custom:dv_lineWidth="22dp">
 
         </com.hookedonplay.decoviewlib.DecoView>
     </RelativeLayout>
