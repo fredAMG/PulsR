@@ -193,6 +193,7 @@ public class DistanceActivity extends AppCompatActivity implements OnDataPointLi
                 stopUI();
                 onStop();
                 updateButtons();
+
                 finish();
                 overridePendingTransition( 0, 0);
                 startActivity(getIntent());
@@ -590,10 +591,7 @@ public class DistanceActivity extends AppCompatActivity implements OnDataPointLi
                             .setDuration(0)
                             .build());
 
-//                    dis_distance.setText(String.format("%.2f km", current_dis - init_dis));
-
-                    dis_distance.setText(String.format("%.2f km", 0));
-
+                    dis_distance.setText(String.format("%.2f km", current_dis - init_dis));
 
                     dis_steps.setText(String.format("%d steps", current_steps - init_steps));
 

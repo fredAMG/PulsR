@@ -22,6 +22,7 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -40,9 +41,11 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.CardView;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AnticipateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
@@ -60,7 +63,9 @@ import com.example.fred_liu.pulsr.Home.Calendar.CalendarFragment;
 import com.example.fred_liu.pulsr.Notification.ParkingSpot;
 import com.example.fred_liu.pulsr.Notification.SpotAdapter;
 import com.example.fred_liu.pulsr.R;
-import com.example.fred_liu.pulsr.Timer.TimerActivity;
+import com.google.android.gms.awareness.Awareness;
+import com.google.android.gms.awareness.snapshot.WeatherResult;
+import com.google.android.gms.awareness.state.Weather;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.common.GooglePlayServicesRepairableException;
@@ -104,9 +109,12 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.jjoe64.graphview.series.PointsGraphSeries;
+import com.plattysoft.leonids.ParticleSystem;
+import com.wx.wheelview.adapter.ArrayWheelAdapter;
+import com.wx.wheelview.widget.WheelView;
 
 
-public class HomeFragment extends Fragment implements OnDataPointListener, ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener{
+public class HomeFragment extends Fragment implements OnDataPointListener, ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     private GoogleApiClient mClient;
     private static final String TAG = "HomeFragment";
     private static final String AUTH_PENDING = "auth_state_pending";
@@ -117,7 +125,7 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Conne
     private float daily_cals;
 
 
-    TextView textDate, currentHeartRate, currentSteps, currentCals, textLocation;
+    TextView textDate, currentHeartRate, currentSteps, currentCals, textLocation, textWeather, textCondition, textTemp, textHumidity;
     GraphView heartRateGraph, stepsRateGraph, calsRateGraph;
     FloatingActionButton start_workout;
     Switch switch1, switch2, switch3, switch4, switch5;
@@ -125,19 +133,14 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Conne
     FrameLayout decoView_frame;
     FrameLayout calendar_frame;
     FragmentTransaction fragmentTransaction;
-    private static String mYear;
-    private static String mMonth;
-    private static String mDay;
-    private static String mWeek;
     private PointsGraphSeries<DataPoint> heartRateSeries;
     private PointsGraphSeries<DataPoint> stepsSeries;
     private PointsGraphSeries<DataPoint> calsSeries;
     private Timer mTimer;
     LinearLayout linearLayoutHeartRates, linearLayoutSteps, linearLayoutCals;
 
-
-
-
+    Button demoW, showW;
+    WheelView wheelView1;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -157,22 +160,94 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Conne
         switch5 = view.findViewById(R.id.switch5);
 
 
-
         decoView_frame = view.findViewById(R.id.decoView_frame);
         map_frame = view.findViewById(R.id.map_frame);
         calendar_frame = view.findViewById(R.id.calendar_frame);
 
         textLocation = view.findViewById(R.id.textLocation);
+        textWeather = view.findViewById(R.id.textWeather);
+        textCondition = view.findViewById(R.id.textCondition);
+        textTemp = view.findViewById(R.id.textTemp);
+        textHumidity = view.findViewById(R.id.textHumidity);
+
+        textCondition.setVisibility(View.GONE);
+        textHumidity.setVisibility(View.GONE);
 
 
-        currentHeartRate =  view.findViewById(R.id.currentHeartRate);
-        currentSteps =  view.findViewById(R.id.currentSteps);
-        currentCals =  view.findViewById(R.id.currentCals);
+        currentHeartRate = view.findViewById(R.id.currentHeartRate);
+        currentSteps = view.findViewById(R.id.currentSteps);
+        currentCals = view.findViewById(R.id.currentCals);
 
         heartRateGraph = view.findViewById(R.id.heartRateGraph);
         stepsRateGraph = view.findViewById(R.id.stepsGraph);
         calsRateGraph = view.findViewById(R.id.calsGraph);
         start_workout = view.findViewById(R.id.start_workout);
+
+        WheelView.WheelViewStyle style = new WheelView.WheelViewStyle(); //设置选中与未选中字体的样式
+        style.selectedTextSize = 20;
+        style.textSize = 16;
+
+        demoW = view.findViewById(R.id.demoW);
+        showW = view.findViewById(R.id.showW);
+        wheelView1 = view.findViewById(R.id.wheelView1);
+
+        wheelView1.setWheelAdapter(new ArrayWheelAdapter(getContext()));  //设置滚轮数据适配器s
+        wheelView1.setSkin(WheelView.Skin.Holo);  //设置背景颜色
+        wheelView1.setWheelData(weatherList()); //设置滚轮数据
+        wheelView1.setStyle(style);
+
+        demoW.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (showW.getVisibility() == View.GONE) {
+                    wheelView1.setVisibility(View.VISIBLE);
+                    showW.setVisibility(View.VISIBLE);
+                    textWeather.setVisibility(View.VISIBLE);
+                } else if (showW.getVisibility() == View.VISIBLE) {
+                    wheelView1.setVisibility(View.GONE);
+                    showW.setVisibility(View.GONE);
+                    textWeather.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        showW.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (wheelView1.getCurrentPosition() == 0) {
+                    textWeather.setText("Unknown");
+                } else if (wheelView1.getCurrentPosition() == 1) {
+                    textWeather.setText("CLear");
+                } else if (wheelView1.getCurrentPosition() == 2) {
+                    textWeather.setText("Cloudy");
+                } else if (wheelView1.getCurrentPosition() == 3) {
+                    textWeather.setText("Foggy");
+                } else if (wheelView1.getCurrentPosition() == 4) {
+                    textWeather.setText("Hazy");
+                } else if (wheelView1.getCurrentPosition() == 5) {
+                    textWeather.setText("Icy");
+                } else if (wheelView1.getCurrentPosition() == 6) {
+                    textWeather.setText("Rainy");
+                    new ParticleSystem(getActivity(), 500, R.drawable.rain, 3000)
+                            .setSpeedRange(0.2f, 0.5f)
+                            .oneShot(view.findViewById(R.id.textDate), 300);
+                } else if (wheelView1.getCurrentPosition() == 7) {
+                    textWeather.setText("Snowy");
+                    new ParticleSystem(getActivity(), 500, R.drawable.snowflake, 3000)
+                            .setSpeedRange(0.2f, 0.5f)
+                            .oneShot(view.findViewById(R.id.textDate), 300);
+//                    new ParticleSystem(getActivity(), 25, R.drawable.snowflake, 3000)
+//                            .setAcceleration(0.00013f, 95)
+//                            .setSpeedByComponentsRange(0f, 0f, 0.05f, 0.1f)
+//                            .setFadeOut(200, new AccelerateInterpolator())
+//                            .emitWithGravity(view.findViewById(R.id.textDate), Gravity.BOTTOM, 8);
+                } else if (wheelView1.getCurrentPosition() == 8) {
+                    textWeather.setText("Stormy");
+                } else if (wheelView1.getCurrentPosition() == 9) {
+                    textWeather.setText("Windy");
+                }
+            }
+        });
+
+
 
         calendar = Calendar.getInstance();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY,MMMM,dd");
@@ -193,6 +268,7 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Conne
 
         switch5.setChecked(false);
         calsRateGraph.setVisibility(View.GONE);
+
 
         linearLayoutHeartRates = view.findViewById(R.id.linearLayoutHeartRates);
         linearLayoutHeartRates.setVisibility(View.GONE);
@@ -229,10 +305,9 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Conne
         final CompoundButton.OnCheckedChangeListener onCheckedChangeListener1 = new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(switch1.isChecked()){
+                if (switch1.isChecked()) {
                     calendar_frame.setVisibility(View.VISIBLE);
-                }
-                else if(!switch1.isChecked()) {
+                } else if (!switch1.isChecked()) {
                     calendar_frame.setVisibility(View.GONE);
                 }
             }
@@ -241,10 +316,9 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Conne
         final CompoundButton.OnCheckedChangeListener onCheckedChangeListener2 = new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(switch2.isChecked()) {
+                if (switch2.isChecked()) {
                     map_frame.setVisibility(View.VISIBLE);
-                }
-                else if(!switch2.isChecked()) {
+                } else if (!switch2.isChecked()) {
                     map_frame.setVisibility(View.GONE);
                 }
             }
@@ -252,10 +326,9 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Conne
         final CompoundButton.OnCheckedChangeListener onCheckedChangeListener3 = new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(switch3.isChecked()){
+                if (switch3.isChecked()) {
                     heartRateGraph.setVisibility(View.VISIBLE);
-                }
-                else if(!switch1.isChecked()) {
+                } else if (!switch1.isChecked()) {
                     heartRateGraph.setVisibility(View.GONE);
                 }
             }
@@ -263,10 +336,9 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Conne
         final CompoundButton.OnCheckedChangeListener onCheckedChangeListener4 = new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(switch4.isChecked()){
+                if (switch4.isChecked()) {
                     stepsRateGraph.setVisibility(View.VISIBLE);
-                }
-                else if(!switch1.isChecked()) {
+                } else if (!switch1.isChecked()) {
                     stepsRateGraph.setVisibility(View.GONE);
                 }
             }
@@ -274,10 +346,9 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Conne
         final CompoundButton.OnCheckedChangeListener onCheckedChangeListener5 = new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(switch5.isChecked()){
+                if (switch5.isChecked()) {
                     calsRateGraph.setVisibility(View.VISIBLE);
-                }
-                else if(!switch1.isChecked()) {
+                } else if (!switch1.isChecked()) {
                     calsRateGraph.setVisibility(View.GONE);
                 }
             }
@@ -300,8 +371,9 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Conne
                 .addApi(Fitness.HISTORY_API)
                 .addApi(Fitness.SESSIONS_API)
                 .addApi(Fitness.CONFIG_API)
-                .addApi( Places.GEO_DATA_API )
-                .addApi( Places.PLACE_DETECTION_API )
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
+                .addApi(Awareness.API)
                 .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ))
                 .addScope(new Scope(Scopes.FITNESS_ACTIVITY_READ_WRITE))
                 .addScope(new Scope(Scopes.FITNESS_LOCATION_READ))
@@ -309,6 +381,82 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Conne
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
+
+        if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return null;
+        }
+        Awareness.SnapshotApi.getWeather(mClient)
+                .setResultCallback(new ResultCallback<WeatherResult>() {
+                    @Override
+                    public void onResult(@NonNull WeatherResult weatherResult) {
+                        if (!weatherResult.getStatus().isSuccess()) {
+                            Log.e(TAG, "Could not get weather.");
+                            return;
+                        }
+                        Weather weather = weatherResult.getWeather();
+
+                        if( weather.getConditions()[0] == Weather.CONDITION_UNKNOWN ) {
+
+                            textCondition.setText("Unknown");
+                        }
+                        else if( weather.getConditions()[0] == Weather.CONDITION_CLEAR ) {
+
+                            textCondition.setText("Clear");
+                            new ParticleSystem(getActivity(), 500, R.drawable.snowflake, 4000)
+                                    .setSpeedRange(0.05f, 0.1f)
+                                    .oneShot(view.findViewById(R.id.textDate), 100);
+                        }
+                        else if( weather.getConditions()[0] == Weather.CONDITION_CLOUDY ) {
+
+                            textCondition.setText("Cloudy");
+                        }
+                        else if( weather.getConditions()[0] == Weather.CONDITION_FOGGY ) {
+
+                            textCondition.setText("Foggy");
+                        }
+                        else if( weather.getConditions()[0] == Weather.CONDITION_CLOUDY ) {
+
+                            textCondition.setText("Cloudy");
+                        }else if( weather.getConditions()[0] == Weather.CONDITION_HAZY ) {
+
+                            textCondition.setText("Hazy");
+                        }else if( weather.getConditions()[0] == Weather.CONDITION_RAINY ) {
+
+                            textCondition.setText("Rainy");
+                            new ParticleSystem(getActivity(), 500, R.drawable.rain, 4000)
+                                    .setSpeedRange(0.05f, 0.1f)
+                                    .oneShot(view.findViewById(R.id.textDate), 300);
+                        }else if( weather.getConditions()[0] == Weather.CONDITION_SNOWY ) {
+
+                            textCondition.setText("Snowy");
+                            new ParticleSystem(getActivity(), 500, R.drawable.snowflake, 4000)
+                                    .setSpeedRange(0.05f, 0.1f)
+                                    .oneShot(view.findViewById(R.id.textDate), 300);
+                        }else if( weather.getConditions()[0] == Weather.CONDITION_STORMY ) {
+
+                            textCondition.setText("Stormy");
+                        }else if( weather.getConditions()[0] == Weather.CONDITION_WINDY ) {
+
+                            textCondition.setText("Windy");
+                        }
+
+                        if (weather != null){
+                            textTemp.setText(String.format("%.0f F°", weather.getTemperature(1)));
+                            textHumidity.setText(String.format("%d%%", weather.getHumidity()));
+                        }
+
+
+                        Log.i(TAG, "Weather: " + weather);
+
+                    }
+                });
 
 
         mTimer = new Timer();
@@ -342,6 +490,8 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Conne
 
         return view;
     }
+
+
 
 
     private void guessCurrentPlace() {
@@ -636,4 +786,8 @@ public class HomeFragment extends Fragment implements OnDataPointListener, Conne
     public interface OnFragmentInteractionListener {
     }
 
+    private List<String> weatherList() {
+        String[] City = getResources().getStringArray(R.array.Weather);
+        return Arrays.asList(City);
+    }
 }

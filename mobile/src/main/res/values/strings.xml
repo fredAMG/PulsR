@@ -19,5 +19,18 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <string-array name="Weather">
+        <item>Unknown</item>
+        <item>Clear</item>
+        <item>Cloudy</item>
+        <item>Foggy</item>
+        <item>Hazy</item>
+        <item>Icy</item>
+        <item>Rainy</item>
+        <item>Snowy</item>
+        <item>Stormy</item>
+        <item>Windy</item>
+    </string-array>
+
 
 </resources>

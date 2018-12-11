@@ -45,6 +45,7 @@ import com.example.fred_liu.pulsr.Timer.TimerActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.gcm.GcmListenerService;
+import com.plattysoft.leonids.ParticleSystem;
 
 public class MainActivity extends AppCompatActivity implements
         HomeFragment.OnFragmentInteractionListener,
@@ -141,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements
 
             bottomNavigationView.setVisibility(View.GONE);
             fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.add(R.id.content, new HomeFragment());
+            fragmentTransaction.add(R.id.content, new LoginFragment());
             fragmentTransaction.commit();
         }
     }

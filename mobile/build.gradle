@@ -52,7 +52,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.github.bmarrdev:android-DecoView-charting:v1.2'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-
+    implementation 'com.google.android.gms:play-services-awareness:16.0.0'
+    implementation 'com.wx.wheelview:wheelview:1.3.3'
+    implementation 'com.plattysoft.leonids:LeonidsLib:1.3.2'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'

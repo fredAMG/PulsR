@@ -65,6 +65,10 @@ public class DecoviewFragment extends Fragment{
         demo2 = view.findViewById(R.id.demo2);
         clear = view.findViewById(R.id.clear);
 
+        demo1.setVisibility(View.GONE);
+        clear.setVisibility(View.GONE);
+        demo2.setText("DEMO");
+
         demo1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 demo1();
@@ -73,13 +77,25 @@ public class DecoviewFragment extends Fragment{
 
         demo2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                demo2();
+                if (demo2.getText() == "DEMO") {
+                    demo1.setVisibility(View.VISIBLE);
+                    clear.setVisibility(View.VISIBLE);
+                    demo2.setText("100%");
+                }
+                else if(demo2.getText() == "100%") {
+                    demo2();
+                    demo1.setEnabled(false);
+                }
             }
         });
 
         clear.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 clear();
+                demo1.setVisibility(View.GONE);
+                clear.setVisibility(View.GONE);
+                demo2.setText("DEMO");
+                demo1.setEnabled(true);
             }
         });
 
