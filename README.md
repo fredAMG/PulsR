@@ -6,10 +6,12 @@ PulsR is a running companion app that provides users with training regimens that
 
 <img src="https://github.com/shuaiL8/PulsR/blob/master/images/11543352421_.pic_hd.jpg" width="250">
 
-<img src="https://github.com/shuaiL8/PulsR/blob/master/images/Screen-Shot-2018-12-11-at-11.52.17-AM.png" width="350">
+<img src="https://github.com/shuaiL8/PulsR/blob/master/images/Screen-Shot-2018-12-11-at-11.52.17-AM.png" width="800">
 
 
-<img src="https://github.com/shuaiL8/PulsR/blob/master/images/Screen-Shot-2018-12-11-at-11.52.24-AM.png" width="350">
+<img src="https://github.com/shuaiL8/PulsR/blob/master/images/Screen-Shot-2018-12-11-at-11.52.24-AM.png" width="800">
+
+<img src="https://github.com/shuaiL8/PulsR/blob/master/images/11543352421_.pic_hd.jpg" width="250">
 
 Red suggests the group to go running using PulsR to track the activity and reveals the current day’s workout to run 3 miles in 30 mins, with an estimated calorie expenditure of 300 calories.
 Upon getting ready, the group starts tracking the run. The middle panel shows the current progress of the intended distance and how much distance is left to reach it. The circular buttons below correspond with the colors on the progress graph: duration, distance, and calories.
