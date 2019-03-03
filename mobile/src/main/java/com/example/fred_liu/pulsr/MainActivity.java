@@ -41,7 +41,6 @@ import com.example.fred_liu.pulsr.Me.RegisterFragment;
 import com.example.fred_liu.pulsr.Me.ResetpasswordFragment;
 import com.example.fred_liu.pulsr.Notification.NotificationsFragment;
 import com.example.fred_liu.pulsr.Search.SearchFragment;
-import com.example.fred_liu.pulsr.Timer.TimerActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.gcm.GcmListenerService;
@@ -142,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements
 
             bottomNavigationView.setVisibility(View.GONE);
             fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.add(R.id.content, new LoginFragment());
+            fragmentTransaction.add(R.id.content, new HomeFragment());
             fragmentTransaction.commit();
         }
     }
